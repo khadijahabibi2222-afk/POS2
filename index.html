@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SwiftPOS</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ac:#2563eb;--acl:#eff6ff;--acm:#3b82f6;--acd:#1d4ed8;
+  --green:#16a34a;--greenl:#f0fdf4;--greenm:#22c55e;
+  --amber:#d97706;--amberl:#fffbeb;
+  --red:#dc2626;--redl:#fef2f2;
+  --purple:#7c3aed;--purplel:#f5f3ff;
+  --orange:#ea580c;--orangel:#fff7ed;
+  --t1:#111827;--t2:#6b7280;--t3:#9ca3af;
+  --bg1:#ffffff;--bg2:#f9fafb;--bg3:#f3f4f6;
+  --bd:#e5e7eb;--bd2:#d1d5db;
+  --radius:8px;--radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--t1);font-size:13px;line-height:1.5;overflow:hidden}
+#wrap{display:flex;flex-direction:column;height:100vh;min-height:560px}
+/* ── TOPBAR */
+.topbar{height:50px;background:var(--ac);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0}
+.tb-brand{display:flex;align-items:center;gap:8px}
+.tb-logo{width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.tb-name{font-size:15px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.tb-r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.25)}
+#tx-pill{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.2)}
+/* ── BODY */
+.body{display:flex;flex:1;overflow:hidden}
+/* ── SIDEBAR */
+.sidebar{width:188px;background:var(--bg1);border-right:1px solid var(--bd);padding:10px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sn{display:flex;align-items:center;gap:9px;padding:8px 12px;font-size:12.5px;color:var(--t2);cursor:pointer;border:none;background:none;width:100%;border-radius:var(--radius);transition:all .12s;font-weight:400;white-space:nowrap}
+.sn i{font-size:16px;flex-shrink:0;width:18px;text-align:center}
+.sn:hover{background:var(--bg3);color:var(--t1)}
+.sn.on{background:var(--acl);color:var(--ac);font-weight:500}
+.sn.on i{color:var(--ac)}
+.sn-sep{height:1px;background:var(--bd);margin:6px 4px}
+.sn-label{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;padding:8px 12px 2px}
+/* ── MAIN */
+.main{flex:1;overflow-y:auto;padding:16px;background:var(--bg2);min-width:0}
+/* ── STAT CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:10px;margin-bottom:14px}
+.sc{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);padding:12px 14px}
+.sc-accent{border-left:3px solid var(--ac)}
+.sc-green{border-left:3px solid var(--greenm)}
+.sc-amber{border-left:3px solid #f59e0b}
+.sc-red{border-left:3px solid #f87171}
+.sc-purple{border-left:3px solid #a78bfa}
+.sc-orange{border-left:3px solid #fb923c}
+.sl{font-size:10.5px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;font-weight:500}
+.sv{font-size:20px;font-weight:600;color:var(--t1);line-height:1}
+/* ── CARD */
+.card{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
+.ch{padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;justify-content:space-between}
+.ch i{color:var(--t2);font-size:15px;margin-right:6px}
+.cb{padding:12px 14px}
+/* ── TABLE */
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+th{color:var(--t2);font-weight:600;padding:7px 10px;border-bottom:1px solid var(--bd);text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;background:var(--bg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+td{padding:8px 10px;border-bottom:1px solid var(--bd);color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8faff}
+/* ── BADGES */
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block;white-space:nowrap}
+.b-g{background:#dcfce7;color:#15803d}
+.b-r{background:#fee2e2;color:#b91c1c}
+.b-a{background:#fef3c7;color:#b45309}
+.b-b{background:#dbeafe;color:#1d4ed8}
+.b-p{background:#ede9fe;color:#6d28d9}
+.b-o{background:#ffedd5;color:#c2410c}
+.b-gray{background:var(--bg3);color:var(--t2)}
+.b-owner{background:#ede9fe;color:#5b21b6}
+.b-admin{background:#dbeafe;color:#1d4ed8}
+.b-cashier{background:#dcfce7;color:#15803d}
+.b-viewer{background:var(--bg3);color:var(--t2)}
+.b-active{background:#dcfce7;color:#15803d}
+.b-inactive{background:#fee2e2;color:#b91c1c}
+/* ── BUTTONS */
+.btn{background:var(--ac);color:#fff;border:none;border-radius:var(--radius);font-size:12px;font-weight:500;padding:6px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .15s;white-space:nowrap}
+.btn:hover{background:var(--acd)}
+.btn-green{background:var(--green)}.btn-green:hover{background:#15803d}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#b91c1c}
+.btn-sm{background:var(--bg1);border:1px solid var(--bd2);border-radius:6px;font-size:11px;padding:3px 9px;cursor:pointer;color:var(--t2);display:inline-flex;align-items:center;gap:4px;transition:all .12s;white-space:nowrap}
+.btn-sm:hover{background:var(--bg3);color:var(--t1)}
+.btn-sm.grn:hover{background:var(--greenl);color:var(--green);border-color:var(--greenm)}
+.btn-sm.red:hover{background:var(--redl);color:var(--red);border-color:#fca5a5}
+.btn-danger{background:var(--redl);color:var(--red);border:1px solid #fca5a5}.btn-danger:hover{background:#fee2e2}
+.icon-btn{background:none;border:1px solid var(--bd2);color:var(--t2);font-size:14px;padding:4px 7px;border-radius:var(--radius);cursor:pointer;display:inline-flex;align-items:center;transition:all .12s}
+.icon-btn:hover{background:var(--bg3);color:var(--t1)}
+.icon-btn.del:hover{background:var(--redl);color:var(--red);border-color:#fca5a5}
+/* ── FORMS */
+.form-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;padding:12px 14px;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--bd)}
+.fi{height:32px;border:1px solid var(--bd2);border-radius:var(--radius);background:var(--bg1);color:var(--t1);font-size:12px;padding:0 9px;transition:border .15s;font-family:inherit}
+.fi:focus{outline:none;border-color:var(--acm);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.fl{font-size:10.5px;color:var(--t2);margin-bottom:3px;display:block;font-weight:500}
+.col{display:flex;flex-direction:column}
+.fr{display:flex;flex-direction:column;gap:4px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+/* ── BANNERS */
+.info-banner{background:var(--acl);border:1px solid #bfdbfe;border-radius:var(--radius);padding:8px 12px;font-size:11.5px;color:var(--ac);display:flex;align-items:center;gap:8px;margin-bottom:12px;font-weight:500}
+.success-banner{background:var(--greenl);border:1px solid #bbf7d0;color:var(--green)}
+/* ── FLOW */
+.flow-arrow{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--t2);margin-bottom:10px;flex-wrap:wrap}
+.flow-step{background:var(--bg1);border:1px solid var(--bd2);border-radius:var(--radius);padding:4px 10px;font-size:11.5px;white-space:nowrap}
+.flow-step.lit{background:var(--acl);border-color:var(--acm);color:var(--ac);font-weight:600}
+/* ── POS */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;overflow-y:auto;max-height:380px}
+.pcard{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);padding:10px 9px;cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+.pcard:hover{border-color:var(--acm);background:var(--acl);transform:translateY(-1px);box-shadow:0 2px 8px rgba(37,99,235,.12)}
+.pcard-name{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:2px;line-height:1.3}
+.pcard-price{font-size:13px;color:var(--ac);font-weight:700}
+.pcard-unit{font-size:10px;color:var(--t3);margin-top:2px}
+.cart-box{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);padding:8px;min-height:60px;flex:1;overflow-y:auto}
+.ci{display:flex;justify-content:space-between;align-items:center;padding:5px 3px;border-bottom:1px solid var(--bd);font-size:11.5px}
+.ci:last-child{border-bottom:none}
+/* ── PURCHASE SUB-TABS */
+.subtab-row{display:flex;gap:2px;margin-bottom:14px;background:var(--bg3);border-radius:var(--radius);padding:3px;flex-wrap:wrap}
+.subtab{background:none;border:none;border-radius:6px;font-size:12px;padding:6px 13px;cursor:pointer;color:var(--t2);display:flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap}
+.subtab i{font-size:14px}
+.subtab:hover{color:var(--t1);background:rgba(255,255,255,.6)}
+.subtab.on{background:var(--bg1);color:var(--ac);font-weight:600;box-shadow:var(--shadow)}
+.tbar{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.srch-w{position:relative;flex:1;min-width:140px}
+.srch-w i{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--t2);left:8px;pointer-events:none}
+.srch-w input{width:100%;height:32px;border:1px solid var(--bd2);border-radius:var(--radius);background:var(--bg1);color:var(--t1);font-size:12px;padding:0 8px 0 28px;font-family:inherit}
+.srch-w input:focus{outline:none;border-color:var(--acm);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.filt-btn{background:none;border:1px solid var(--bd2);border-radius:20px;font-size:11px;padding:4px 11px;cursor:pointer;color:var(--t2);transition:all .12s;white-space:nowrap}
+.filt-btn.on{background:var(--acl);border-color:var(--acm);color:var(--ac);font-weight:600}
+/* ── SUPPLIER CARDS */
+.sup-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+.sup-card{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);padding:14px;transition:border-color .15s}
+.sup-card:hover{border-color:var(--acm)}
+.sup-avatar{width:38px;height:38px;border-radius:50%;background:var(--acl);color:var(--ac);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:9px}
+.sup-name{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.sup-cat{font-size:11px;color:var(--t2);margin-bottom:7px}
+.sup-meta{font-size:11px;color:var(--t2);display:flex;flex-direction:column;gap:3px}
+.sup-meta i{font-size:12px;margin-right:4px;color:var(--t3)}
+.sup-actions{display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--bd);padding-top:9px}
+.sup-btn{flex:1;background:none;border:1px solid var(--bd2);border-radius:var(--radius);font-size:11px;padding:5px;cursor:pointer;color:var(--t2);display:flex;align-items:center;justify-content:center;gap:4px;transition:all .12s}
+.sup-btn:hover{background:var(--acl);color:var(--ac);border-color:var(--acm)}
+/* ── SETTINGS */
+.set-sidebar{width:176px;background:var(--bg1);border-right:1px solid var(--bd);flex-shrink:0;padding:8px 0;overflow-y:auto}
+.ssn-section{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;padding:10px 14px 3px}
+.ssn{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;color:var(--t2);font-size:12.5px;border:none;background:none;width:100%;transition:all .12s;font-weight:400;white-space:nowrap}
+.ssn i{font-size:16px;flex-shrink:0;width:18px}
+.ssn:hover{background:var(--bg2);color:var(--t1)}
+.ssn.on{background:var(--acl);color:var(--ac);font-weight:500}
+.set-main{flex:1;overflow-y:auto;padding:16px}
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.page-title{font-size:14px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:7px}
+.page-title i{font-size:18px;color:var(--ac)}
+.store-row{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.store-lbl{font-size:11px;font-weight:500;color:var(--t2)}
+.store-val{height:32px;border:1px solid var(--bd2);border-radius:var(--radius);background:var(--bg2);color:var(--t1);font-size:12px;padding:0 9px;width:100%;font-family:inherit}
+.store-val:focus{outline:none;border-color:var(--acm);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.save-btn{background:var(--ac);color:#fff;border:none;border-radius:var(--radius);font-size:12px;font-weight:500;padding:7px 18px;cursor:pointer;margin-top:4px}
+.save-btn:hover{background:var(--acd)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info{display:flex;flex-direction:column;gap:2px}
+.toggle-lbl{font-size:12.5px;font-weight:500;color:var(--t1)}
+.toggle-sub{font-size:11px;color:var(--t2)}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#d1d5db;border-radius:20px;cursor:pointer;transition:background .2s}
+.toggle input:checked+.slider{background:var(--ac)}
+.slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s}
+.toggle input:checked+.slider:before{transform:translateX(16px)}
+.perm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.perm-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--radius);padding:9px 11px;display:flex;align-items:center;justify-content:space-between}
+.perm-lbl{font-size:12px;color:var(--t1)}
+.partner-card{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px}
+.partner-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.partner-avatar{width:38px;height:38px;border-radius:50%;background:var(--purplel);color:var(--purple);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.partner-name{font-size:13px;font-weight:600;color:var(--t1)}
+.partner-role{font-size:11px;color:var(--t2)}
+.partner-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.ps{background:var(--bg2);border-radius:var(--radius);padding:8px 10px;text-align:center}
+.ps-lbl{font-size:10px;color:var(--t2);margin-bottom:3px}
+.ps-val{font-size:14px;font-weight:600;color:var(--t1)}
+.prog-bg{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-top:4px}
+.prog-fill{height:100%;background:var(--ac);border-radius:4px}
+.danger-zone{background:var(--redl);border:1px solid #fca5a5;border-radius:var(--radius-lg);padding:14px;margin-bottom:14px}
+.dz-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dz-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #fca5a5}
+.dz-row:last-child{border-bottom:none}
+.dz-info{display:flex;flex-direction:column;gap:2px}
+.dz-lbl{font-size:12.5px;font-weight:600;color:var(--red)}
+.dz-sub{font-size:11px;color:var(--red);opacity:.75}
+.dz-btn{background:none;border:1px solid var(--red);border-radius:var(--radius);font-size:11.5px;padding:5px 12px;cursor:pointer;color:var(--red);white-space:nowrap;transition:all .15s}
+.dz-btn:hover{background:var(--red);color:#fff}
+.backup-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)}
+.backup-row:last-child{border-bottom:none}
+.backup-info{display:flex;flex-direction:column;gap:2px}
+.backup-lbl{font-size:12.5px;font-weight:500;color:var(--t1)}
+.backup-sub{font-size:11px;color:var(--t2)}
+.backup-btn{background:none;border:1px solid var(--bd2);border-radius:var(--radius);font-size:11.5px;padding:5px 11px;cursor:pointer;color:var(--t2);display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .15s}
+.backup-btn:hover{background:var(--acl);color:var(--ac);border-color:var(--acm)}
+/* ── MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--bg1);border-radius:var(--radius-lg);border:1px solid var(--bd);width:400px;max-width:96%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.mh{padding:13px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:13px;font-weight:600;color:var(--t1)}
+.xbtn{background:none;border:none;font-size:18px;color:var(--t2);cursor:pointer;line-height:1;padding:2px}
+.xbtn:hover{color:var(--t1)}
+.mb{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.mf{padding:11px 16px;border-top:1px solid var(--bd);display:flex;gap:7px;justify-content:flex-end}
+.oi-row{display:flex;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd)}
+.oi-row:last-child{border-bottom:none}
+.oi-qty,.oi-price{width:64px;height:28px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg2);color:var(--t1);font-size:12px;padding:0 6px;text-align:center;font-family:inherit}
+.oi-qty:focus,.oi-price:focus{outline:none;border-color:var(--acm)}
+.oi-sub{width:58px;font-size:11.5px;color:var(--ac);font-weight:600;text-align:right;flex-shrink:0}
+.oi-del{width:22px;height:22px;background:none;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;color:var(--t3);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.oi-del:hover{background:var(--redl);color:var(--red);border-color:#fca5a5}
+.order-total-row{display:flex;justify-content:space-between;font-size:13px;font-weight:600;padding:9px 0 2px;border-top:1px solid var(--bd);margin-top:4px}
+/* ── TOAST */
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(10px);background:#1e293b;color:#fff;font-size:12px;padding:8px 16px;border-radius:20px;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── LOGIN PANEL */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#f0f7ff 0%,#e8f4fd 40%,#f5f0ff 100%);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0}
+.login-card{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(37,99,235,.10),0 2px 8px rgba(0,0,0,.06);padding:36px 40px 32px;width:360px;max-width:94vw;position:relative;overflow:hidden}
+.login-card::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.08) 0%,transparent 70%)}
+.login-card::after{content:'';position:absolute;bottom:-40px;left:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.07) 0%,transparent 70%)}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.login-logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--ac),#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,99,235,.25)}
+.login-logo-icon i{font-size:20px;color:#fff}
+.login-brand{font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-.02em}
+.login-tagline{text-align:center;font-size:11.5px;color:var(--t2);margin-bottom:28px}
+.login-user-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.login-user-btn{background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;padding:12px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .18s;position:relative}
+.login-user-btn:hover{border-color:var(--acm);background:var(--acl);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.10)}
+.login-user-btn.selected{border-color:var(--ac);background:var(--acl)}
+.login-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.login-uname{font-size:12px;font-weight:600;color:var(--t1)}
+.login-urole{font-size:10px;color:var(--t2)}
+.login-role-badge{position:absolute;top:7px;right:8px;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:600}
+.login-sep{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.login-sep span{font-size:11px;color:var(--t3);white-space:nowrap}
+.login-sep hr{flex:1;border:none;border-top:1px solid var(--bd)}
+.login-pin-label{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.login-pin-wrap{position:relative;margin-bottom:14px}
+.login-pin-wrap i{position:absolute;top:50%;transform:translateY(-50%);left:11px;font-size:15px;color:var(--t3);pointer-events:none}
+#login-pin{width:100%;height:42px;border:1.5px solid var(--bd2);border-radius:10px;background:var(--bg2);font-size:16px;font-weight:600;padding:0 40px 0 38px;letter-spacing:.25em;color:var(--t1);transition:border .15s}
+#login-pin:focus{outline:none;border-color:var(--acm);box-shadow:0 0 0 3px rgba(59,130,246,.10);background:#fff}
+.login-pin-toggle{position:absolute;top:50%;transform:translateY(-50%);right:11px;background:none;border:none;cursor:pointer;color:var(--t3);font-size:16px;padding:2px}
+.login-pin-toggle:hover{color:var(--t2)}
+.login-btn{width:100%;height:42px;background:linear-gradient(135deg,var(--ac),var(--acd));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s;box-shadow:0 4px 12px rgba(37,99,235,.22)}
+.login-btn:hover{opacity:.9}
+.login-btn:disabled{opacity:.45;cursor:not-allowed}
+.login-error{font-size:12px;color:var(--red);text-align:center;min-height:18px;margin-top:6px}
+.login-lang{display:flex;gap:6px;justify-content:center;margin-top:20px}
+.login-lbtn{background:none;border:1px solid var(--bd);border-radius:20px;font-size:11px;font-weight:500;padding:3px 10px;cursor:pointer;color:var(--t2);transition:all .15s}
+.login-lbtn.on{background:var(--acl);border-color:var(--acm);color:var(--ac)}
+.login-pin-dots{display:flex;justify-content:center;gap:8px;margin:8px 0 12px}
+.pin-dot{width:10px;height:10px;border-radius:50%;background:var(--bd2);transition:all .15s}
+.pin-dot.filled{background:var(--ac);transform:scale(1.2)}
+.login-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+.np-btn{background:var(--bg2);border:1.5px solid var(--bd);border-radius:10px;height:44px;font-size:16px;font-weight:600;cursor:pointer;color:var(--t1);transition:all .15s;display:flex;align-items:center;justify-content:center}
+.np-btn:hover{background:var(--acl);border-color:var(--acm);color:var(--ac)}
+.np-btn:active{transform:scale(.94)}
+.np-btn.del{font-size:18px;color:var(--t2)}
+
+/* ── ITEM EDIT MODAL */
+.item-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item-modal-full{grid-column:1/-1}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:10px}
+/* ── RTL / TRILINGUAL */
+html[dir=rtl] body{font-family:'Vazirmatn','Segoe UI',sans-serif}
+html[dir=rtl] .sidebar{border-right:none;border-left:1px solid var(--bd)}
+html[dir=rtl] .sn{flex-direction:row-reverse;text-align:right}
+html[dir=rtl] .tb-r{margin-left:0;margin-right:auto}
+html[dir=rtl] .topbar{flex-direction:row-reverse}
+html[dir=rtl] .mh{flex-direction:row-reverse}
+html[dir=rtl] .mf{flex-direction:row-reverse}
+html[dir=rtl] th,html[dir=rtl] td{text-align:right}
+html[dir=rtl] .tbar{flex-direction:row-reverse}
+html[dir=rtl] .form-row{flex-direction:row-reverse}
+html[dir=rtl] .srch-w i{left:auto;right:8px}
+html[dir=rtl] .srch-w input{padding:0 28px 0 8px}
+html[dir=rtl] .fi{text-align:right}
+html[dir=rtl] .page-head{flex-direction:row-reverse}
+html[dir=rtl] .card .ch{flex-direction:row-reverse}
+html[dir=rtl] .exp-filter-row{flex-direction:row-reverse}
+html[dir=rtl] .exp-stat-row{flex-direction:row-reverse}
+html[dir=rtl] .subtab-row{flex-direction:row-reverse}
+html[dir=rtl] .set-sidebar{border-right:none;border-left:1px solid var(--bd)}
+html[dir=rtl] .ssn{flex-direction:row-reverse;text-align:right}
+html[dir=rtl] .backup-row{flex-direction:row-reverse}
+html[dir=rtl] .dz-row{flex-direction:row-reverse}
+html[dir=rtl] .partner-head{flex-direction:row-reverse}
+html[dir=rtl] .sup-actions{flex-direction:row-reverse}
+html[dir=rtl] .toggle-row{flex-direction:row-reverse}
+/* lang switcher */
+.lang-sw{display:flex;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;overflow:hidden;margin-left:6px}
+.lbtn{background:none;border:none;font-size:11px;font-weight:500;padding:3px 9px;cursor:pointer;color:rgba(255,255,255,.8);transition:all .15s}
+.lbtn.on{background:rgba(255,255,255,.25);color:#fff;font-weight:700}
+/* expense section extras */
+.exp-tabs{display:flex;gap:2px;background:var(--bg3);border-radius:var(--radius);padding:3px;margin-bottom:14px;flex-wrap:wrap}
+.exp-tab{background:none;border:none;border-radius:6px;font-size:12px;padding:6px 13px;cursor:pointer;color:var(--t2);display:flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap}
+.exp-tab.on{background:var(--bg1);color:var(--ac);font-weight:600;box-shadow:var(--shadow)}
+.exp-cat-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--bd2);background:var(--bg1);cursor:pointer;transition:all .12s;white-space:nowrap}
+.exp-cat-chip.on{background:var(--acl);border-color:var(--acm);color:var(--ac)}
+.exp-summary-card{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.exp-progress-bg{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:4px}
+.exp-progress-fill{height:100%;border-radius:3px;transition:width .4s}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-cash-register"></i></div>
+      <span class="login-brand">SwiftPOS</span>
+    </div>
+    <div class="login-tagline" id="lt-tagline">Select your account</div>
+
+    <div class="login-user-grid" id="login-user-grid"></div>
+
+    <div class="login-sep"><hr><span id="lt-enter-pin">Enter PIN</span><hr></div>
+
+    <div class="login-pin-dots" id="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+    </div>
+
+    <div class="login-numpad" id="numpad"></div>
+
+    <div class="login-error" id="login-error"></div>
+
+    <div class="login-lang">
+      <button class="login-lbtn" onclick="setLoginLang('fa')">فارسی</button>
+      <button class="login-lbtn on" onclick="setLoginLang('en')">EN</button>
+      <button class="login-lbtn" onclick="setLoginLang('ps')">پښتو</button>
+    </div>
+  </div>
+</div>
+
+<div id="wrap">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-logo"><i class="ti ti-cash-register" style="font-size:15px;color:#fff"></i></div>
+      <span class="tb-name">SwiftPOS</span>
+    </div>
+    <div class="tb-r">
+      <div class="lang-sw">
+        <button class="lbtn" onclick="setLang('fa')">فارسی</button>
+        <button class="lbtn on" onclick="setLang('en')" id="lb-en">EN</button>
+        <button class="lbtn" onclick="setLang('ps')">پښتو</button>
+      </div>
+      <span class="pill" id="cloud-pill"><i class="ti ti-cloud" style="font-size:11px;margin-right:3px"></i>Cloud: ON</span>
+      <span class="pill" id="tx-pill"><i class="ti ti-receipt" style="font-size:11px;margin-right:3px"></i>0 sales today</span>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:var(--radius);font-size:11.5px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit" title="Logout">
+        <i class="ti ti-logout" style="font-size:13px"></i><span id="tb-logout-lbl">Logout</span>
+      </button>
+    </div>
+  </div>
+  <div class="body">
+    <nav class="sidebar">
+      <div class="sn-label" id="sn-lbl-ops">Operations</div>
+      <button class="sn on" onclick="nav('pos',this)"><i class="ti ti-cash-register"></i><span id="sn-pos">POS / Sales</span></button>
+      <button class="sn" onclick="nav('items',this)"><i class="ti ti-package"></i><span id="sn-items">Items</span></button>
+      <button class="sn" onclick="nav('purchase',this)"><i class="ti ti-truck"></i><span id="sn-purchase">Purchase</span></button>
+      <div class="sn-sep"></div>
+      <div class="sn-label" id="sn-lbl-mgmt">Management</div>
+      <button class="sn" onclick="nav('finance',this)"><i class="ti ti-chart-pie"></i><span id="sn-finance">Finance</span></button>
+      <button class="sn" onclick="nav('expenses',this)"><i class="ti ti-receipt-2"></i><span id="sn-expenses">Expenses</span></button>
+      <button class="sn" onclick="nav('customers',this)"><i class="ti ti-users"></i><span id="sn-customers">Customers</span></button>
+      <button class="sn" onclick="nav('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span id="sn-dashboard">Dashboard</span></button>
+      <div class="sn-sep"></div>
+      <button class="sn" onclick="nav('settings',this)"><i class="ti ti-settings"></i><span id="sn-settings">Settings</span></button>
+      <div style="flex:1"></div>
+      <div class="sn-sep"></div>
+      <button class="sn" style="color:var(--red)" onclick="clearAll()"><i class="ti ti-refresh"></i><span id="sn-reset">Reset data</span></button>
+    </nav>
+    <div class="main" id="main"></div>
+  </div>
+</div>
+
+<!-- Shared modal -->
+<div class="modal-bg" id="g-modal-bg">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mh">
+      <span class="mt" id="g-modal-title"></span>
+      <button class="xbtn" onclick="closeGModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mb" id="g-modal-body"></div>
+    <div class="mf" id="g-modal-foot"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   DATA STORE — Cloud API (no localStorage)
+   Backend: Express + SQLite on Render/Railway
+   API base: /api  (same origin, no CORS needed)
+════════════════════════════════════════════ */
+const UNITS=['pcs','kg','g','ltr','ml','box','carton','dozen','pair','set','m','cm'];
+
+// In-memory db object — loaded from server on boot, saved back on every change
+let db = {};
+let _saveTimer = null;
+
+/* ── API helpers ── */
+async function apiGet(){
+  const r = await fetch('/api/db');
+  if(!r.ok) throw new Error('Failed to load data from server');
+  return r.json();
+}
+async function apiPut(data){
+  return fetch('/api/db',{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(data)
+  });
+}
+async function apiDelete(){
+  return fetch('/api/db',{method:'DELETE'});
+}
+
+/* ── saveDB — debounced 400ms so rapid changes batch into one PUT ── */
+function saveDB(){
+  updatePills();
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(async ()=>{
+    try{
+      await apiPut(db);
+    }catch(e){
+      showToast('⚠ Save failed — check connection');
+    }
+  }, 400);
+}
+
+/* ── clearAll — calls DELETE /api/db then reloads ── */
+async function clearAll(){
+  if(!confirm('Reset all data to defaults?'))return;
+  showLoader('Resetting…');
+  try{
+    await apiDelete();
+    db = await apiGet();
+    hideLoader();
+    nav('pos',document.querySelector('.sn'));
+    showToast('✓ Data reset to defaults');
+  }catch(e){
+    hideLoader();
+    showToast('⚠ Reset failed');
+  }
+}
+
+/* ── Loading overlay helpers ── */
+function showLoader(msg='Loading…'){
+  let el=document.getElementById('_loader');
+  if(!el){
+    el=document.createElement('div');
+    el.id='_loader';
+    el.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;font-family:inherit';
+    el.innerHTML=`<div style="width:36px;height:36px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:_spin .7s linear infinite"></div><div id="_loader_msg" style="font-size:14px;font-weight:500;color:rgba(255,255,255,.9)"></div>`;
+    if(!document.getElementById('_spin_style')){const s=document.createElement('style');s.id='_spin_style';s.textContent='@keyframes _spin{to{transform:rotate(360deg)}}';document.head.appendChild(s);}
+    document.body.appendChild(el);
+  }
+  document.getElementById('_loader_msg').textContent=msg;
+  el.style.display='flex';
+}
+function hideLoader(){
+  const el=document.getElementById('_loader');
+  if(el)el.style.display='none';
+}
+
+function updatePills(){
+  const today=new Date().toISOString().slice(0,10);
+  const n=db.sales.filter(s=>s.date===today).length;
+  const el=document.getElementById('tx-pill');
+  if(el)el.innerHTML=`<i class="ti ti-receipt" style="font-size:11px;margin-right:3px"></i>${n} sale${n!==1?'s':''} today`;
+}
+
+let _curPage='pos';
+function nav(page,btn){
+  _curPage=page;
+  document.querySelectorAll('.sn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  render(page);
+}
+function render(page){
+  const m=document.getElementById('main');
+  if(page==='pos'){m.style.padding='16px';renderPOS();}
+  else if(page==='items'){m.style.padding='16px';renderItems();}
+  else if(page==='purchase'){m.style.padding='16px';renderPurchase();}
+  else if(page==='finance'){m.style.padding='16px';renderFinance();}
+  else if(page==='expenses'){m.style.padding='16px';renderExpenses();}
+  else if(page==='customers'){m.style.padding='16px';renderCustomers();}
+  else if(page==='settings'){m.style.padding='0';renderSettings();}
+  else{m.style.padding='16px';renderDashboard();}
+}
+
+/* ════════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════════ */
+function renderDashboard(){
+  const today=new Date().toISOString().slice(0,10);
+  const ts=db.sales.filter(s=>s.date===today);
+  const rev=ts.reduce((s,x)=>s+x.total,0);
+  const low=db.items.filter(i=>i.stock>0&&i.stock<=i.min).length;
+  const out=db.items.filter(i=>i.stock===0).length;
+  const pendPO=db.orders.filter(o=>o.status==='pending'||o.status==='partial').length;
+  const debtors=db.customers.filter(c=>c.balance>0).length;
+  document.getElementById('main').innerHTML=`
+    <div class="info-banner success-banner"><i class="ti ti-cloud" style="font-size:15px"></i>All data persists on the server (SQLite) — sales, purchases, items, customers and settings are saved automatically via API</div>
+    <div class="stat-row">
+      <div class="sc sc-green"><div class="sl">Today revenue</div><div class="sv" style="color:var(--green)">${db.settings.currency}${rev.toFixed(2)}</div></div>
+      <div class="sc sc-accent"><div class="sl">Today sales</div><div class="sv" style="color:var(--ac)">${ts.length}</div></div>
+      <div class="sc sc-amber"><div class="sl">Low stock</div><div class="sv" style="color:var(--amber)">${low}</div></div>
+      <div class="sc sc-red"><div class="sl">Out of stock</div><div class="sv" style="color:var(--red)">${out}</div></div>
+      <div class="sc sc-orange"><div class="sl">Pending POs</div><div class="sv" style="color:var(--orange)">${pendPO}</div></div>
+      <div class="sc sc-purple"><div class="sl">Credit customers</div><div class="sv" style="color:var(--purple)">${debtors}</div></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span><i class="ti ti-route"></i>Full data flow</span></div>
+      <div class="cb">
+        <div class="flow-arrow">
+          <span class="flow-step lit"><i class="ti ti-truck" style="font-size:12px"></i> PO received</span>
+          <i class="ti ti-arrow-right"></i><span class="flow-step">stock + units</span>
+          <i class="ti ti-arrow-right"></i><span class="flow-step">finance − expense</span>
+          <i class="ti ti-arrow-right"></i><span class="flow-step lit"><i class="ti ti-cash-register" style="font-size:12px"></i> POS sale</span>
+          <i class="ti ti-arrow-right"></i><span class="flow-step">stock − units</span>
+          <i class="ti ti-arrow-right"></i><span class="flow-step">finance + income</span>
+          <i class="ti ti-arrow-right"></i><span class="flow-step">customer + points</span>
+          <i class="ti ti-arrow-right"></i><span class="flow-step lit"><i class="ti ti-database" style="font-size:12px"></i> saved</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span><i class="ti ti-receipt"></i>Recent sales</span></div>
+      <table><thead><tr>
+        <th style="width:90px">Ref</th><th style="width:88px">Date</th><th style="width:120px">Customer</th>
+        <th style="width:55px">Mode</th><th style="width:75px">Total</th><th style="width:70px">Method</th>
+      </tr></thead>
+      <tbody>${db.sales.slice(-6).reverse().map(s=>`<tr>
+        <td><span style="color:var(--ac);font-weight:600;font-size:11.5px">${s.ref}</span></td>
+        <td style="color:var(--t2)">${s.date}</td>
+        <td style="font-weight:500">${s.customerName||'Walk-in'}</td>
+        <td><span class="badge ${s.saleMode==='wholesale'?'b-o':'b-b'}">${s.saleMode||'retail'}</span></td>
+        <td style="font-weight:600;color:var(--green)">${db.settings.currency}${s.total.toFixed(2)}</td>
+        <td><span class="badge b-b">${s.method}</span></td>
+      </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--t2)">No sales yet</td></tr>'}
+      </tbody></table>
+    </div>`;
+}
+
+/* ════════════════════════════════════════════
+   POS
+════════════════════════════════════════════ */
+function renderPOS(){
+  const avail=db.items.filter(i=>i.stock>0);
+  let saleMode='retail';
+  document.getElementById('main').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 220px;gap:12px;height:calc(100vh - 82px)">
+      <div style="display:flex;flex-direction:column;gap:10px;overflow:hidden">
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+          <div style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;flex:1">Products in stock</div>
+          <div style="display:flex;gap:3px;background:var(--bg3);border-radius:var(--radius);padding:3px">
+            <button id="mode-retail" class="subtab on" style="padding:5px 12px" onclick="setPOSMode('retail')">Retail</button>
+            <button id="mode-wholesale" class="subtab" style="padding:5px 12px" onclick="setPOSMode('wholesale')">Wholesale</button>
+          </div>
+        </div>
+        <div class="pgrid" id="pgrid" style="flex:1;max-height:none;overflow-y:auto">
+          ${avail.map(it=>`<div class="pcard" id="pc-${it.id}" onclick="addToCart(${it.id})">
+            <div class="pcard-name">${it.name}</div>
+            <div class="pcard-price" id="pp-${it.id}">${db.settings.currency}${it.price.toFixed(2)}</div>
+            <div class="pcard-unit" id="pu-${it.id}">Stock: ${it.stock} ${it.unit}</div>
+          </div>`).join('')||'<p style="font-size:12px;color:var(--t2);padding:12px">No items in stock</p>'}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;overflow:hidden">
+        <div style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;flex-shrink:0">Cart</div>
+        <div class="cart-box" id="cart" style="flex:1">
+          <div id="cart-empty" style="font-size:12px;color:var(--t3);text-align:center;padding:22px 0">
+            <i class="ti ti-shopping-cart-off" style="font-size:24px;display:block;margin:0 auto 6px;opacity:.4"></i>Empty
+          </div>
+        </div>
+        <div style="background:var(--bg1);border:1px solid var(--bd);border-radius:var(--radius-lg);padding:10px 11px;flex-shrink:0">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px">
+            <span style="color:var(--t2)">${db.settings.taxEnabled===false?'Tax (disabled)':((db.settings.taxName||'Tax')+' ('+db.settings.taxRate+'%)')}</span>
+            <span id="tax-val" style="color:var(--t2)">${db.settings.currency}0.00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:10px;border-top:1px solid var(--bd);padding-top:6px">
+            <span>Total</span><span id="total-val" style="color:var(--ac)">${db.settings.currency}0.00</span>
+          </div>
+          <div class="col" style="margin-bottom:7px">
+            <label class="fl">Customer</label>
+            <select class="fi" id="cust-sel" style="width:100%;height:30px">
+              <option value="">Walk-in</option>
+              ${db.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col" style="margin-bottom:8px">
+            <label class="fl">Payment method</label>
+            <select class="fi" id="pay-sel" style="width:100%;height:30px">
+              <option value="cash">Cash</option><option value="card">Card</option>
+              <option value="mobile">Mobile</option><option value="credit">Credit</option>
+            </select>
+          </div>
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:8px" onclick="completeSale()">
+            <i class="ti ti-check"></i>Complete Sale
+          </button>
+        </div>
+      </div>
+    </div>`;
+  window._cart=[];window._posMode='retail';
+  updateCartUI();
+}
+
+function setPOSMode(mode){
+  window._posMode=mode;
+  document.getElementById('mode-retail')?.classList.toggle('on',mode==='retail');
+  document.getElementById('mode-wholesale')?.classList.toggle('on',mode==='wholesale');
+  // refresh card prices/units
+  db.items.filter(i=>i.stock>0).forEach(it=>{
+    const pp=document.getElementById('pp-'+it.id);
+    const pu=document.getElementById('pu-'+it.id);
+    if(pp)pp.textContent=db.settings.currency+(mode==='wholesale'?it.wsPrice.toFixed(2):it.price.toFixed(2));
+    if(pu)pu.textContent=mode==='wholesale'?`1 ${it.wsUnit} = ${it.wsQty} ${it.unit}`:`Stock: ${it.stock} ${it.unit}`;
+  });
+  window._cart=[];updateCartUI();
+}
+
+function addToCart(itemId){
+  const item=db.items.find(i=>i.id===itemId);
+  if(!item||item.stock<=0)return;
+  const mode=window._posMode||'retail';
+  const price=mode==='wholesale'?item.wsPrice:item.price;
+  const unitLabel=mode==='wholesale'?item.wsUnit:item.unit;
+  const stockUnits=mode==='wholesale'?Math.floor(item.stock/item.wsQty):item.stock;
+  const ex=(window._cart||[]).find(c=>c.id===itemId);
+  if(ex){if(ex.qty<stockUnits)ex.qty++;else{showToast('Max stock reached');return;}}
+  else window._cart.push({id:itemId,name:item.name,price,cost:item.cost,qty:1,unit:unitLabel,wsQty:item.wsQty,mode});
+  updateCartUI();
+}
+
+function updateCartUI(){
+  const cart=window._cart||[];
+  const cartEl=document.getElementById('cart');
+  const emptyEl=document.getElementById('cart-empty');
+  if(!cartEl)return;
+  cartEl.querySelectorAll('.ci').forEach(e=>e.remove());
+  if(emptyEl)emptyEl.style.display=cart.length?'none':'block';
+  let sub=0;
+  cart.forEach(ci=>{
+    sub+=ci.price*ci.qty;
+    const d=document.createElement('div');d.className='ci';
+    d.innerHTML=`<span style="flex:1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ci.name}</span>
+      <span style="color:var(--t3);font-size:10px;margin:0 3px;flex-shrink:0">${ci.unit}</span>
+      <span style="color:var(--t2);margin:0 4px;flex-shrink:0">×${ci.qty}</span>
+      <span style="color:var(--green);font-weight:600;flex-shrink:0">${db.settings.currency}${(ci.price*ci.qty).toFixed(2)}</span>
+      <button onclick="removeFromCart(${ci.id})" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;margin-left:4px;flex-shrink:0"><i class="ti ti-x"></i></button>`;
+    cartEl.appendChild(d);
+  });
+  const tax=db.settings.taxEnabled===false?0:sub*(db.settings.taxRate/100);
+  if(el1)el1.textContent=db.settings.currency+(sub+tax).toFixed(2);
+  if(el2)el2.textContent=db.settings.currency+tax.toFixed(2);
+}
+function removeFromCart(id){window._cart=(window._cart||[]).filter(c=>c.id!==id);updateCartUI();}
+
+function completeSale(){
+  const cart=window._cart||[];
+  if(!cart.length){showToast('Cart is empty');return;}
+  const custId=document.getElementById('cust-sel')?.value;
+  const method=document.getElementById('pay-sel')?.value||'cash';
+  const mode=window._posMode||'retail';
+  const today=new Date().toISOString().slice(0,10);
+  const sub=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const tax=db.settings.taxEnabled===false?0:sub*(db.settings.taxRate/100);
+  const total=+(sub+tax).toFixed(2);
+  const cogs=cart.reduce((s,c)=>s+c.cost*(c.mode==='wholesale'?c.wsQty:1)*c.qty,0);
+  const ref='INV-'+String(db.counters.sale++).padStart(4,'0');
+  cart.forEach(ci=>{
+    const item=db.items.find(i=>i.id===ci.id);
+    if(item){
+      const units=ci.mode==='wholesale'?(ci.wsQty*ci.qty):ci.qty;
+      item.stock=Math.max(0,item.stock-units);
+    }
+  });
+  db.sales.push({id:Date.now(),ref,date:today,saleMode:mode,items:cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price,unit:c.unit})),sub:+sub.toFixed(2),tax:+tax.toFixed(2),total,cogs:+cogs.toFixed(2),method,customerId:custId||null,customerName:custId?(db.customers.find(c=>c.id==custId)?.name||''):'Walk-in',status:method==='credit'?'credit':'paid'});
+  db.finance.push({id:db.counters.finance++,date:today,desc:'Sale '+ref+' ('+mode+')',cat:'sales',amount:total,type:'income',ref});
+  if(cogs>0)db.finance.push({id:db.counters.finance++,date:today,desc:'COGS '+ref,cat:'cogs',amount:+cogs.toFixed(2),type:'expense',ref});
+  if(custId){const cust=db.customers.find(c=>c.id==custId);if(cust){cust.visits=(cust.visits||0)+1;cust.totalSpent=+((cust.totalSpent||0)+total).toFixed(2);cust.points=(cust.points||0)+Math.floor(total);if(method==='credit')cust.balance=+((cust.balance||0)+total).toFixed(2);}}
+  saveDB();window._cart=[];updateCartUI();updatePills();
+  showToast('✓ '+ref+' ('+mode+') — stock updated · finance logged'+(custId?' · points awarded':''));
+}
+
+/* ════════════════════════════════════════════
+   ITEMS — fully editable
+════════════════════════════════════════════ */
+function renderItems(){
+  const low=db.items.filter(i=>i.stock>0&&i.stock<=i.min);
+  const out=db.items.filter(i=>i.stock===0);
+  const val=db.items.reduce((s,i)=>s+i.stock*i.cost,0);
+  document.getElementById('main').innerHTML=`
+    <div class="stat-row">
+      <div class="sc sc-accent"><div class="sl">${T('items_sc_total')}</div><div class="sv" style="color:var(--ac)">${db.items.length}</div></div>
+      <div class="sc sc-amber"><div class="sl">${T('items_sc_low')}</div><div class="sv" style="color:var(--amber)">${low.length}</div></div>
+      <div class="sc sc-red"><div class="sl">${T('items_sc_out')}</div><div class="sv" style="color:var(--red)">${out.length}</div></div>
+      <div class="sc sc-green"><div class="sl">${T('items_sc_val')}</div><div class="sv" style="color:var(--green)">${db.settings.currency}${val.toFixed(0)}</div></div>
+    </div>
+    <!-- search + add -->
+    <div class="tbar" style="margin-bottom:12px">
+      <div class="srch-w" style="flex:1;min-width:180px">
+        <i class="ti ti-search"></i>
+        <input type="text" id="items-srch" placeholder="Search items…" oninput="filterItemsTable(this.value)" style="width:100%;height:32px;border:1px solid var(--bd2);border-radius:var(--radius);background:var(--bg1);color:var(--t1);font-size:12px;padding:0 8px 0 28px;font-family:inherit">
+      </div>
+      <select id="items-cat-filter" class="fi" style="width:110px" onchange="filterItemsTable(document.getElementById('items-srch').value)">
+        <option value="">All cats</option>
+        ${['food','drink','home','other'].map(c=>`<option value="${c}">${c}</option>`).join('')}
+      </select>
+      <button class="btn btn-green" onclick="openItemModal(null)"><i class="ti ti-plus"></i>${T('items_add')}</button>
+    </div>
+    <!-- table -->
+    <div class="card"><table>
+      <thead><tr>
+        <th style="width:110px">${T('items_col_name')}</th>
+        <th style="width:50px">${T('items_col_price')}</th>
+        <th style="width:48px">${T('items_col_cost')}</th>
+        <th style="width:75px">${T('items_col_stock')}</th>
+        <th style="width:48px">${T('items_col_unit')}</th>
+        <th style="width:95px">${T('items_col_wsunit')}</th>
+        <th style="width:60px">${T('items_col_wsprice')}</th>
+        <th style="width:60px">Barcode</th>
+        <th style="width:68px">${T('items_col_status')}</th>
+        <th style="width:70px"></th>
+      </tr></thead>
+      <tbody id="items-tbody"></tbody>
+    </table></div>`;
+  renderItemsTable(db.items);
+}
+
+function renderItemsTable(list){
+  const tb=document.getElementById('items-tbody');if(!tb)return;
+  tb.innerHTML=list.map(it=>{
+    const out=it.stock===0,low=it.stock>0&&it.stock<=it.min;
+    return`<tr>
+      <td style="font-weight:600">${it.name}</td>
+      <td style="color:var(--ac);font-weight:500">${db.settings.currency}${it.price.toFixed(2)}</td>
+      <td style="color:var(--t2)">${db.settings.currency}${it.cost.toFixed(2)}</td>
+      <td>
+        <span style="font-weight:600;color:${out?'var(--red)':low?'var(--amber)':'var(--t1)'}">${it.stock}</span>
+        <span style="color:var(--t3);font-size:10px;margin-left:2px">${it.unit}</span>
+        ${low||out?`<span style="font-size:9px;color:var(--t3)"> (min:${it.min})</span>`:''}
+      </td>
+      <td><span class="badge b-b">${it.unit}</span></td>
+      <td><span class="badge b-o" style="font-size:10px">${it.wsQty} ${it.unit}/${it.wsUnit}</span></td>
+      <td style="color:var(--orange);font-weight:600">${db.settings.currency}${(it.wsPrice||0).toFixed(2)}</td>
+      <td style="font-size:10px;color:var(--t3);font-family:monospace">${it.barcode?.slice(-6)||'—'}</td>
+      <td><span class="badge ${out?'b-r':low?'b-a':'b-g'}">${out?T('items_st_out'):low?T('items_st_low'):T('items_st_ok')}</span></td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn-sm grn" onclick="openItemModal(${it.id})" title="Edit"><i class="ti ti-edit" style="font-size:12px"></i></button>
+          <button class="btn-sm red" onclick="deleteItem(${it.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--t2)">No items found</td></tr>`;
+}
+
+function filterItemsTable(q){
+  const cat=document.getElementById('items-cat-filter')?.value||'';
+  let list=db.items;
+  if(q)list=list.filter(i=>i.name.toLowerCase().includes(q.toLowerCase())||i.barcode?.includes(q));
+  if(cat)list=list.filter(i=>i.cat===cat);
+  renderItemsTable(list);
+}
+
+function openItemModal(id){
+  const it=id?db.items.find(i=>i.id===id):null;
+  const isEdit=!!it;
+  document.getElementById('g-modal-title').textContent=isEdit?'✏️ Edit Item':'➕ Add Item';
+  document.getElementById('g-modal-body').innerHTML=`
+    <div class="item-modal-grid">
+      <!-- Name -->
+      <div class="fr item-modal-full">
+        <label class="fl">${T('items_lbl_name')} *</label>
+        <input class="fi" type="text" id="im-name" value="${it?.name||''}" placeholder="e.g. Orange Juice" style="height:36px;font-size:13px;font-weight:500">
+      </div>
+      <!-- Barcode -->
+      <div class="fr item-modal-full">
+        <label class="fl">Barcode</label>
+        <div style="display:flex;gap:6px">
+          <input class="fi" type="text" id="im-barcode" value="${it?.barcode||''}" placeholder="Scan or type…" style="flex:1;font-family:monospace">
+          <button class="btn-sm" onclick="document.getElementById('im-barcode').value='6'+Date.now().toString().slice(-11)" style="white-space:nowrap"><i class="ti ti-wand" style="font-size:12px"></i>Generate</button>
+        </div>
+      </div>
+      <!-- Price / Cost -->
+      <div class="fr">
+        <label class="fl">${T('items_lbl_price')} (${db.settings.currency}) *</label>
+        <input class="fi" type="number" id="im-price" min="0" step="0.01" value="${it?.price||''}">
+      </div>
+      <div class="fr">
+        <label class="fl">${T('items_lbl_cost')} (${db.settings.currency})</label>
+        <input class="fi" type="number" id="im-cost" min="0" step="0.01" value="${it?.cost||''}">
+      </div>
+      <!-- Stock / Min -->
+      <div class="fr">
+        <label class="fl">${T('items_lbl_stock')}</label>
+        <input class="fi" type="number" id="im-stock" min="0" value="${it?.stock??''}">
+      </div>
+      <div class="fr">
+        <label class="fl">Min stock alert</label>
+        <input class="fi" type="number" id="im-min" min="0" value="${it?.min??5}">
+      </div>
+      <!-- Retail unit / Category -->
+      <div class="fr">
+        <label class="fl">${T('items_lbl_runit')}</label>
+        <select class="fi" id="im-unit">${UNITS.map(u=>`<option${(it?.unit||'pcs')===u?' selected':''}>${u}</option>`).join('')}</select>
+      </div>
+      <div class="fr">
+        <label class="fl">Category</label>
+        <select class="fi" id="im-cat">
+          ${['food','drink','home','other'].map(c=>`<option value="${c}"${(it?.cat||'other')===c?' selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <!-- Wholesale section -->
+      <div class="fr item-modal-full" style="padding:10px 12px;background:var(--amberl);border-radius:var(--radius);border:1px solid #fde68a">
+        <div style="font-size:11px;font-weight:600;color:var(--amber);margin-bottom:8px;display:flex;align-items:center;gap:5px"><i class="ti ti-building-warehouse" style="font-size:14px"></i>Wholesale</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div class="fr">
+            <label class="fl">${T('items_lbl_wsunit')}</label>
+            <select class="fi" id="im-wsunit">${UNITS.map(u=>`<option${(it?.wsUnit||'box')===u?' selected':''}>${u}</option>`).join('')}</select>
+          </div>
+          <div class="fr">
+            <label class="fl">${T('items_lbl_wsqty')} per unit</label>
+            <input class="fi" type="number" id="im-wsqty" min="1" value="${it?.wsQty||12}">
+          </div>
+          <div class="fr">
+            <label class="fl">${T('items_lbl_wsprice')} (${db.settings.currency})</label>
+            <input class="fi" type="number" id="im-wsprice" min="0" step="0.01" value="${it?.wsPrice||''}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- margin hint -->
+    <div id="margin-hint" style="margin-top:10px;font-size:11.5px;color:var(--t2);background:var(--bg2);padding:7px 10px;border-radius:var(--radius)">
+      💡 Enter price & cost to see margin
+    </div>`;
+  document.getElementById('g-modal-foot').innerHTML=`
+    <button class="btn-sm" onclick="closeGModal()">Cancel</button>
+    ${isEdit?`<button class="btn btn-red" onclick="deleteItem(${it.id});closeGModal()"><i class="ti ti-trash" style="font-size:12px"></i>Delete</button>`:''}
+    <button class="btn btn-green" onclick="saveItem(${id||'null'})"><i class="ti ti-check"></i>${isEdit?'Save changes':'Add item'}</button>`;
+  document.getElementById('g-modal-bg').classList.add('show');
+  // live margin calc
+  ['im-price','im-cost'].forEach(fid=>{
+    document.getElementById(fid)?.addEventListener('input',()=>{
+      const p=parseFloat(document.getElementById('im-price')?.value)||0;
+      const c=parseFloat(document.getElementById('im-cost')?.value)||0;
+      const hint=document.getElementById('margin-hint');
+      if(hint&&p>0){const m=p>0?((p-c)/p*100):0;hint.innerHTML=`Margin: <b style="color:${m>=30?'var(--green)':m>=15?'var(--amber)':'var(--red)'}">${m.toFixed(1)}%</b> &nbsp;·&nbsp; Profit per unit: <b>${db.settings.currency}${(p-c).toFixed(2)}</b>`;}
+    });
+  });
+}
+
+function saveItem(id){
+  const name=document.getElementById('im-name')?.value?.trim();
+  const price=parseFloat(document.getElementById('im-price')?.value);
+  if(!name){showToast('⚠ Item name is required');return;}
+  if(!price||price<=0){showToast('⚠ Price must be greater than 0');return;}
+  const data={
+    name,
+    barcode:document.getElementById('im-barcode')?.value||('6'+Date.now().toString().slice(-11)),
+    price,
+    cost:parseFloat(document.getElementById('im-cost')?.value)||0,
+    stock:parseInt(document.getElementById('im-stock')?.value)||0,
+    min:parseInt(document.getElementById('im-min')?.value)||5,
+    cat:document.getElementById('im-cat')?.value||'other',
+    unit:document.getElementById('im-unit')?.value||'pcs',
+    wsUnit:document.getElementById('im-wsunit')?.value||'box',
+    wsQty:parseInt(document.getElementById('im-wsqty')?.value)||1,
+    wsPrice:parseFloat(document.getElementById('im-wsprice')?.value)||0
+  };
+  if(id&&id!==null&&id!=='null'){
+    const idx=db.items.findIndex(i=>i.id===id);
+    if(idx>=0)db.items[idx]={...db.items[idx],...data};
+    showToast('✓ Item updated!');
+  } else {
+    db.items.push({id:db.counters.item++,...data});
+    showToast(T('items_toast_added'));
+  }
+  saveDB();closeGModal();renderItems();
+}
+
+function addItem(){openItemModal(null);}
+function deleteItem(id){
+  if(!confirm('Delete this item?'))return;
+  db.items=db.items.filter(i=>i.id!==id);
+  saveDB();renderItems();showToast('✓ Item deleted');
+}
+
+/* ════════════════════════════════════════════
+   PURCHASE
+════════════════════════════════════════════ */
+let _poTab='orders',_ordFilter='all',_poModalMode='order',_receiveOrderId=null;
+function renderPurchase(){
+  document.getElementById('main').innerHTML=`
+    <div class="subtab-row">
+      <button class="subtab${_poTab==='orders'?' on':''}" onclick="switchPOTab('orders',this)"><i class="ti ti-file-invoice"></i>${T('po_tab_orders')}</button>
+      <button class="subtab${_poTab==='receive'?' on':''}" onclick="switchPOTab('receive',this)"><i class="ti ti-package-import"></i>${T('po_tab_receive')}</button>
+      <button class="subtab${_poTab==='suppliers'?' on':''}" onclick="switchPOTab('suppliers',this)"><i class="ti ti-building-store"></i>${T('po_tab_suppliers')}</button>
+      <button class="subtab${_poTab==='history'?' on':''}" onclick="switchPOTab('history',this)"><i class="ti ti-history"></i>${T('po_tab_history')}</button>
+    </div>
+    <div id="po-view"></div>`;
+  renderPOTab(_poTab);
+}
+function switchPOTab(tab,btn){_poTab=tab;document.querySelectorAll('.subtab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderPOTab(tab);}
+function renderPOTab(tab){
+  if(tab==='orders')renderPOOrders();
+  else if(tab==='receive')renderPOReceive();
+  else if(tab==='suppliers')renderPOSuppliers();
+  else renderPOHistory();
+}
+function poBadge(s){const m={pending:'b-a',received:'b-g',partial:'b-b',cancelled:'b-r'};const lk={pending:'po_st_pending',received:'po_st_received',partial:'po_st_partial',cancelled:'po_st_cancelled'};return`<span class="badge ${m[s]||'b-a'}">${T(lk[s])||s}</span>`;}
+
+function renderPOOrders(){
+  const pending=db.orders.filter(o=>o.status==='pending'||o.status==='partial').length;
+  const spent=db.orders.filter(o=>o.status==='received').reduce((s,o)=>s+o.total,0);
+  document.getElementById('po-view').innerHTML=`
+    <div class="stat-row">
+      <div class="sc sc-accent"><div class="sl">${T('po_sc_total')}</div><div class="sv" style="color:var(--ac)">${db.orders.length}</div></div>
+      <div class="sc sc-amber"><div class="sl">${T('po_sc_pending')}</div><div class="sv" style="color:var(--amber)">${pending}</div></div>
+      <div class="sc sc-green"><div class="sl">${T('po_sc_received')}</div><div class="sv" style="color:var(--green)">${db.settings.currency}${spent.toFixed(0)}</div></div>
+    </div>
+    <div class="tbar">
+      <div class="srch-w"><i class="ti ti-search"></i><input type="text" placeholder="${T('po_srch')}" id="po-srch" oninput="filterPOOrders()"></div>
+      <button class="filt-btn${_ordFilter==='all'?' on':''}" onclick="setPOFilter('all',this)">${T('po_filter_all')}</button>
+      <button class="filt-btn${_ordFilter==='pending'?' on':''}" onclick="setPOFilter('pending',this)">${T('po_filter_pending')}</button>
+      <button class="filt-btn${_ordFilter==='received'?' on':''}" onclick="setPOFilter('received',this)">${T('po_filter_received')}</button>
+      <button class="btn" onclick="openNewPOModal()"><i class="ti ti-plus"></i>${T('po_new_order')}</button>
+    </div>
+    <div class="card"><table>
+      <thead><tr>
+        <th style="width:88px">${T('po_col_ref')}</th>
+        <th style="width:130px">${T('po_col_supplier')}</th>
+        <th style="width:120px">${T('po_col_items')}</th>
+        <th style="width:72px">${T('po_col_total')}</th>
+        <th style="width:88px">${T('po_col_due')}</th>
+        <th style="width:80px">${T('po_col_status')}</th>
+        <th style="width:110px">${T('po_col_actions')}</th>
+      </tr></thead>
+      <tbody id="po-ord-tbody"></tbody>
+    </table></div>`;
+  filterPOOrders();
+}
+function setPOFilter(s,btn){_ordFilter=s;document.querySelectorAll('#po-view .filt-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');filterPOOrders();}
+function filterPOOrders(){
+  const q=(document.getElementById('po-srch')?.value||'').toLowerCase();
+  let list=db.orders;
+  if(_ordFilter!=='all')list=list.filter(o=>o.status===_ordFilter);
+  if(q)list=list.filter(o=>o.ref.toLowerCase().includes(q)||o.supplier.toLowerCase().includes(q));
+  const tb=document.getElementById('po-ord-tbody');if(!tb)return;
+  tb.innerHTML=list.map(o=>`<tr>
+    <td><span style="color:var(--ac);font-weight:600">${o.ref}</span></td>
+    <td style="font-weight:500">${o.supplier}</td>
+    <td style="font-size:11px;color:var(--t2)">${o.items.map(i=>`${i.qty} ${i.unit||'pcs'} ${i.name}`).join(', ')}</td>
+    <td style="font-weight:600">${db.settings.currency}${o.total.toFixed(2)}</td>
+    <td style="color:var(--t2)">${o.due}</td>
+    <td>${poBadge(o.status)}</td>
+    <td><div style="display:flex;gap:4px">
+      ${o.status==='pending'||o.status==='partial'?`<button class="btn-sm grn" onclick="openReceivePOModal(${o.id})"><i class="ti ti-package-import" style="font-size:12px"></i>${T('po_btn_receive')}</button>`:''}
+      ${o.status==='pending'?`<button class="btn-sm red" onclick="cancelPO(${o.id})"><i class="ti ti-x" style="font-size:12px"></i></button>`:''}
+    </div></td>
+  </tr>`).join('')||`<tr><td colspan="7" style="text-align:center;padding:18px;color:var(--t2)">${T('po_no_orders')}</td></tr>`;
+}
+
+function renderPOReceive(){
+  const pending=db.orders.filter(o=>o.status==='pending'||o.status==='partial');
+  document.getElementById('po-view').innerHTML=`
+    <div class="card"><table>
+      <thead><tr>
+        <th style="width:88px">${T('po_col_ref')}</th><th style="width:130px">${T('po_col_supplier')}</th><th style="width:120px">${T('po_col_items')}</th>
+        <th style="width:72px">${T('po_col_total')}</th><th style="width:88px">${T('po_col_due')}</th><th style="width:80px">${T('po_col_status')}</th><th style="width:90px">${T('po_col_actions')}</th>
+      </tr></thead>
+      <tbody>${pending.length===0?`<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--t2)"><i class="ti ti-circle-check" style="font-size:22px;display:block;margin:0 auto 6px;color:var(--green)"></i>${T('po_all_received')}</td></tr>`:
+      pending.map(o=>`<tr>
+        <td><span style="color:var(--ac);font-weight:600">${o.ref}</span></td>
+        <td style="font-weight:500">${o.supplier}</td>
+        <td style="font-size:11px;color:var(--t2)">${o.items.map(i=>`${i.qty} ${i.unit||'pcs'} ${i.name}`).join(', ')}</td>
+        <td style="font-weight:600">${db.settings.currency}${o.total.toFixed(2)}</td>
+        <td style="color:var(--t2)">${o.due}</td>
+        <td>${poBadge(o.status)}</td>
+        <td><button class="btn-sm grn" onclick="openReceivePOModal(${o.id})"><i class="ti ti-package-import" style="font-size:12px"></i>${T('po_btn_receive')}</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+function renderPOSuppliers(){
+  document.getElementById('po-view').innerHTML=`
+    <div class="tbar">
+      <div class="srch-w"><i class="ti ti-search"></i><input type="text" placeholder="${T('po_srch_sup')}" oninput="filterPOSup(this.value)"></div>
+      <button class="btn" onclick="openNewSupplierModal()"><i class="ti ti-plus"></i>${T('po_add_sup')}</button>
+    </div>
+    <div class="sup-grid" id="po-sup-grid">${db.suppliers.map(s=>supCard(s)).join('')}</div>`;
+}
+function filterPOSup(q){const grid=document.getElementById('po-sup-grid');if(!grid)return;grid.innerHTML=(q?db.suppliers.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())):db.suppliers).map(s=>supCard(s)).join('');}
+function supCard(s){
+  return`<div class="sup-card">
+    <div class="sup-avatar">${s.initials}</div>
+    <div class="sup-name">${s.name}</div>
+    <div class="sup-cat"><span class="badge b-b">${T('po_cat_'+s.cat)||s.cat}</span></div>
+    <div class="sup-meta">
+      <span><i class="ti ti-phone"></i>${s.phone||'—'}</span>
+      <span><i class="ti ti-mail"></i>${s.email||'—'}</span>
+      <span><i class="ti ti-map-pin"></i>${s.addr||'—'}</span>
+    </div>
+    <div class="sup-actions">
+      <button class="sup-btn" onclick="openNewPOModal(${s.id})"><i class="ti ti-truck" style="font-size:13px"></i>${T('po_btn_order')}</button>
+      <button class="sup-btn"><i class="ti ti-phone" style="font-size:13px"></i>${T('po_btn_call')}</button>
+    </div>
+  </div>`;
+}
+
+function renderPOHistory(){
+  const done=db.orders.filter(o=>o.status==='received'||o.status==='cancelled');
+  document.getElementById('po-view').innerHTML=`
+    <div class="tbar"><div class="srch-w"><i class="ti ti-search"></i><input type="text" placeholder="${T('po_srch_hist')}" oninput="filterPOHist(this.value)"></div></div>
+    <div class="card"><table>
+      <thead><tr>
+        <th style="width:88px">${T('po_col_ref')}</th><th style="width:130px">${T('po_col_supplier')}</th><th style="width:90px">${T('po_col_date')}</th>
+        <th style="width:120px">${T('po_col_items')}</th><th style="width:80px">${T('po_col_total')}</th><th style="width:90px">${T('po_col_status')}</th>
+      </tr></thead>
+      <tbody id="po-hist-tbody">${histRows(done)}</tbody>
+    </table></div>`;
+}
+function histRows(list){return list.map(o=>`<tr>
+  <td><span style="color:var(--ac);font-weight:600">${o.ref}</span></td>
+  <td style="font-weight:500">${o.supplier}</td>
+  <td style="color:var(--t2)">${o.date}</td>
+  <td style="font-size:11px;color:var(--t2)">${o.items.map(i=>`${i.qty} ${i.unit||'pcs'} ${i.name}`).join(', ')}</td>
+  <td style="font-weight:600">${db.settings.currency}${o.total.toFixed(2)}</td>
+  <td>${poBadge(o.status)}</td>
+</tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--t2)">No history yet</td></tr>';}
+function filterPOHist(q){const done=db.orders.filter(o=>o.status==='received'||o.status==='cancelled');const fl=q?done.filter(o=>o.ref.toLowerCase().includes(q.toLowerCase())||o.supplier.toLowerCase().includes(q.toLowerCase())):done;const tb=document.getElementById('po-hist-tbody');if(tb)tb.innerHTML=histRows(fl);}
+function cancelPO(id){const o=db.orders.find(x=>x.id===id);if(o&&o.status==='pending'){o.status='cancelled';saveDB();filterPOOrders();showToast('Order cancelled');}}
+
+/* ── PO MODALS */
+function openNewPOModal(supId=null){
+  _poModalMode='order';
+  document.getElementById('g-modal-title').textContent='New Purchase Order';
+  const supOpts=db.suppliers.map(s=>`<option value="${s.id}"${supId===s.id?' selected':''}>${s.name}</option>`).join('');
+  const unitOpts=UNITS.map(u=>`<option>${u}</option>`).join('');
+  document.getElementById('g-modal-body').innerHTML=`
+    <div class="fr"><label class="fl">Supplier</label><select class="fi" id="m-sup" style="background:var(--bg2)">${supOpts}</select></div>
+    <div class="fr2">
+      <div class="fr"><label class="fl">Order date</label><input class="fi" type="date" id="m-date" value="${new Date().toISOString().slice(0,10)}"></div>
+      <div class="fr"><label class="fl">Expected date</label><input class="fi" type="date" id="m-due" value="${new Date(Date.now()+5*864e5).toISOString().slice(0,10)}"></div>
+    </div>
+    <div>
+      <div class="fl" style="margin-bottom:5px">Items <span style="color:var(--t3);font-weight:400">(qty · unit · name · cost each)</span></div>
+      <div id="oi-list"></div>
+      <button style="background:none;border:none;cursor:pointer;color:var(--ac);font-size:12px;font-weight:500;padding:4px 0;margin-top:4px" onclick="addOIRow()"><i class="ti ti-plus" style="font-size:13px;vertical-align:-2px"></i> Add item row</button>
+      <div class="order-total-row"><span>Order total</span><span id="oi-total" style="color:var(--ac)">${db.settings.currency}0.00</span></div>
+    </div>`;
+  document.getElementById('g-modal-foot').innerHTML=`<button class="btn-sm" onclick="closeGModal()">Cancel</button><button class="btn" onclick="savePO()"><i class="ti ti-check"></i>Save Order</button>`;
+  addOIRow();document.getElementById('g-modal-bg').classList.add('show');
+}
+function addOIRow(){
+  const list=document.getElementById('oi-list');if(!list)return;
+  const unitOpts=UNITS.map(u=>`<option${u==='box'?' selected':''}>${u}</option>`).join('');
+  const row=document.createElement('div');row.className='oi-row';
+  row.innerHTML=`
+    <input class="oi-qty" type="number" min="1" value="1" placeholder="Qty" oninput="calcOITotal()" style="font-family:inherit">
+    <select style="width:64px;height:28px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg2);color:var(--t1);font-size:11px;padding:0 4px;font-family:inherit" class="oi-unit" oninput="calcOITotal()">${unitOpts}</select>
+    <input style="flex:1;height:28px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg2);color:var(--t1);font-size:12px;padding:0 7px;font-family:inherit" type="text" placeholder="Item name">
+    <input class="oi-price" type="number" min="0" step="0.01" value="0" placeholder="Cost" oninput="calcOITotal()" style="font-family:inherit">
+    <span class="oi-sub">${db.settings.currency}0.00</span>
+    <button class="oi-del" onclick="this.closest('.oi-row').remove();calcOITotal()"><i class="ti ti-x"></i></button>`;
+  list.appendChild(row);
+}
+function calcOITotal(){
+  let total=0;
+  document.querySelectorAll('.oi-row').forEach(row=>{
+    const q=parseFloat(row.querySelector('.oi-qty')?.value)||0;
+    const p=parseFloat(row.querySelector('.oi-price')?.value)||0;
+    const sub=q*p;total+=sub;
+    const s=row.querySelector('.oi-sub');if(s)s.textContent=db.settings.currency+sub.toFixed(2);
+  });
+  const ot=document.getElementById('oi-total');if(ot)ot.textContent=db.settings.currency+total.toFixed(2);
+}
+function savePO(){
+  const sup=db.suppliers.find(s=>s.id===parseInt(document.getElementById('m-sup')?.value));
+  const date=document.getElementById('m-date')?.value||new Date().toISOString().slice(0,10);
+  const due=document.getElementById('m-due')?.value||date;
+  const items=[];let total=0;
+  document.querySelectorAll('.oi-row').forEach(row=>{
+    const name=row.querySelector('input[type="text"]')?.value?.trim()||'Item';
+    const qty=parseInt(row.querySelector('.oi-qty')?.value)||0;
+    const unit=row.querySelector('.oi-unit')?.value||'pcs';
+    const cost=parseFloat(row.querySelector('.oi-price')?.value)||0;
+    items.push({name,qty,unit,cost});total+=qty*cost;
+  });
+  db.orders.unshift({id:Date.now(),ref:'PO-'+String(db.counters.po++).padStart(4,'0'),supplier:sup?sup.name:'Unknown',supId:sup?sup.id:0,date,due,items,status:'pending',total:+total.toFixed(2)});
+  saveDB();closeGModal();renderPOOrders();showToast('✓ Purchase order saved!');
+}
+function openReceivePOModal(id){
+  _poModalMode='receive';_receiveOrderId=id;
+  const o=db.orders.find(x=>x.id===id);if(!o)return;
+  document.getElementById('g-modal-title').textContent='Receive Stock — '+o.ref;
+  document.getElementById('g-modal-body').innerHTML=`
+    <div style="font-size:12px;color:var(--t2);margin-bottom:10px;display:flex;gap:8px;align-items:center">
+      <span class="badge b-o">${o.supplier}</span>
+      <span>Due: ${o.due}</span>
+      <span style="font-weight:600;color:var(--ac)">${db.settings.currency}${o.total.toFixed(2)}</span>
+    </div>
+    <div class="fl" style="margin-bottom:6px">Confirm quantities received</div>
+    <div id="rec-list">
+      ${o.items.map((it,i)=>`
+        <div class="oi-row">
+          <span style="flex:1;font-size:12px;font-weight:500">${it.name}</span>
+          <span class="badge b-o" style="margin:0 6px;flex-shrink:0">${it.unit||'pcs'}</span>
+          <span style="font-size:11px;color:var(--t2);margin-right:6px;flex-shrink:0">Ordered: ${it.qty}</span>
+          <input class="oi-qty rec-qty" data-idx="${i}" type="number" min="0" max="${it.qty}" value="${it.qty}" style="width:64px;font-family:inherit">
+        </div>`).join('')}
+    </div>`;
+  document.getElementById('g-modal-foot').innerHTML=`<button class="btn-sm" onclick="closeGModal()">Cancel</button><button class="btn btn-green" onclick="confirmPOReceive()"><i class="ti ti-package-import"></i>Confirm Receipt</button>`;
+  document.getElementById('g-modal-bg').classList.add('show');
+}
+function confirmPOReceive(){
+  const o=db.orders.find(x=>x.id===_receiveOrderId);if(!o)return;
+  const inputs=document.querySelectorAll('.rec-qty');
+  let allFull=true,totalCost=0;
+  inputs.forEach((inp,i)=>{
+    const got=parseInt(inp.value)||0;
+    if(got<o.items[i].qty)allFull=false;
+    const dbItem=db.items.find(it=>it.name.toLowerCase()===o.items[i].name.toLowerCase());
+    // When receiving wholesale units, convert to retail stock units
+    const mult=(o.items[i].unit&&dbItem&&o.items[i].unit!==dbItem.unit)?dbItem.wsQty:1;
+    if(dbItem)dbItem.stock=Math.max(0,dbItem.stock+got*mult);
+    totalCost+=got*(o.items[i].cost||0);
+  });
+  o.status=allFull?'received':'partial';
+  const today=new Date().toISOString().slice(0,10);
+  db.finance.push({id:db.counters.finance++,date:today,desc:'Purchase '+o.ref,cat:'purchase',amount:+totalCost.toFixed(2),type:'expense',ref:o.ref});
+  saveDB();closeGModal();renderPurchase();
+  showToast('✓ '+o.ref+' received — stock updated · finance logged');
+}
+function openNewSupplierModal(){
+  _poModalMode='supplier';
+  document.getElementById('g-modal-title').textContent='Add Supplier';
+  document.getElementById('g-modal-body').innerHTML=`
+    <div class="fr"><label class="fl">Supplier name *</label><input class="fi" type="text" id="s-name" placeholder="Company name"></div>
+    <div class="fr2">
+      <div class="fr"><label class="fl">Phone</label><input class="fi" type="text" id="s-phone" placeholder="+31..."></div>
+      <div class="fr"><label class="fl">Email</label><input class="fi" type="email" id="s-email"></div>
+    </div>
+    <div class="fr"><label class="fl">Category</label><select class="fi" id="s-cat" style="background:var(--bg2)"><option value="food">Food</option><option value="drink">Drinks</option><option value="home">Household</option><option value="other">Other</option></select></div>
+    <div class="fr"><label class="fl">Address</label><input class="fi" type="text" id="s-addr"></div>`;
+  document.getElementById('g-modal-foot').innerHTML=`<button class="btn-sm" onclick="closeGModal()">Cancel</button><button class="btn" onclick="saveSupplier()"><i class="ti ti-check"></i>Save Supplier</button>`;
+  document.getElementById('g-modal-bg').classList.add('show');
+}
+function saveSupplier(){
+  const name=document.getElementById('s-name')?.value?.trim();if(!name)return;
+  db.suppliers.push({id:Date.now(),name,phone:document.getElementById('s-phone')?.value||'',email:document.getElementById('s-email')?.value||'',cat:document.getElementById('s-cat')?.value||'other',addr:document.getElementById('s-addr')?.value||'',initials:name.split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase()});
+  saveDB();closeGModal();renderPOSuppliers();showToast('✓ Supplier saved!');
+}
+
+/* ════════════════════════════════════════════
+   TRILINGUAL ENGINE
+════════════════════════════════════════════ */
+const LANGS={
+  en:{dir:'ltr',
+    nav_ops:'Operations',nav_mgmt:'Management',
+    nav_pos:'POS / Sales',nav_items:'Items',nav_purchase:'Purchase',
+    nav_finance:'Finance',nav_expenses:'Expenses',nav_customers:'Customers',
+    nav_dashboard:'Dashboard',nav_settings:'Settings',nav_reset:'Reset data',
+    // Finance
+    total_income:'Total income',total_expenses:'Total expenses',net_profit:'Net profit',transactions:'Transactions',
+    fin_banner:'POS sales auto-log income + COGS. Purchase receipts auto-log expenses.',
+    col_ref:'Ref',col_date:'Date',col_desc:'Description',col_cat:'Category',col_type:'Type',col_amount:'Amount',
+    // Expenses full module
+    exp_title:'Expenses',exp_add:'Add Expense',exp_tab_all:'All Expenses',exp_tab_add:'Add New',exp_tab_summary:'Summary',
+    exp_srch:'Search expenses…',
+    exp_stat_today:'Today',exp_stat_week:'This week',exp_stat_month:'This month',exp_stat_count:'# entries',
+    exp_cat_rent:'Rent',exp_cat_salary:'Salary',exp_cat_util:'Utilities',exp_cat_purchase:'Purchase',
+    exp_cat_transport:'Transport',exp_cat_marketing:'Marketing',exp_cat_maintenance:'Maintenance',
+    exp_cat_tax:'Tax/Fees',exp_cat_other:'Other',exp_cat_all:'All categories',
+    exp_lbl_amount:'Amount',exp_lbl_date:'Date',exp_lbl_desc:'Description',exp_lbl_cat:'Category',
+    exp_lbl_note:'Note (optional)',exp_lbl_recur:'Recurring',exp_lbl_recur_sub:'This expense repeats monthly',
+    exp_lbl_paid_by:'Paid by',exp_lbl_method:'Payment method',
+    exp_method_cash:'Cash',exp_method_card:'Card',exp_method_transfer:'Bank transfer',exp_method_other:'Other',
+    exp_save:'Save Expense',exp_cancel:'Cancel',exp_delete:'Delete',exp_edit:'Edit',
+    exp_no_entries:'No expenses yet — add your first one',
+    exp_summary_title:'Expense breakdown',exp_summary_by_cat:'By category',exp_summary_by_month:'This month',
+    exp_budget:'Monthly budget',exp_budget_lbl:'Set budget',exp_budget_save:'Save',exp_budget_used:'used',
+    exp_col_desc:'Description',exp_col_cat:'Category',exp_col_date:'Date',exp_col_amount:'Amount',
+    exp_col_method:'Method',exp_col_note:'Note',exp_col_actions:'',
+    exp_largest:'Largest expense',exp_avg:'Daily average',exp_projected:'Projected month',
+    exp_filter_today:'Today',exp_filter_week:'This week',exp_filter_month:'This month',exp_filter_all:'All time',
+    exp_toast_saved:'✓ Expense saved!',exp_toast_del:'✓ Expense deleted',exp_toast_budget:'✓ Budget saved!',
+    currency_lbl:'Currency',
+    // Items page
+    items_sc_total:'Total items',items_sc_low:'Low stock',items_sc_out:'Out of stock',items_sc_val:'Stock value',
+    items_lbl_name:'Name',items_lbl_price:'Retail price',items_lbl_cost:'Cost',items_lbl_stock:'Stock',
+    items_lbl_runit:'Retail unit',items_lbl_wsunit:'WS unit',items_lbl_wsqty:'WS qty',items_lbl_wsprice:'WS price',
+    items_ph_name:'Item name',items_add:'Add',
+    items_col_name:'Name',items_col_price:'Price',items_col_cost:'Cost',items_col_stock:'Stock',
+    items_col_unit:'Unit',items_col_wsunit:'WS Unit / Qty',items_col_wsprice:'WS Price',items_col_status:'Status',
+    items_st_ok:'OK',items_st_low:'Low',items_st_out:'Out',
+    items_toast_added:'✓ Item added!',
+    // Purchase page
+    po_tab_orders:'Orders',po_tab_receive:'Receive Stock',po_tab_suppliers:'Suppliers',po_tab_history:'History',
+    po_sc_total:'Total orders',po_sc_pending:'Pending',po_sc_received:'Total received',
+    po_srch:'Search orders…',po_srch_sup:'Search suppliers…',po_srch_hist:'Search history…',
+    po_filter_all:'All',po_filter_pending:'Pending',po_filter_received:'Received',
+    po_new_order:'New Order',po_add_sup:'Add Supplier',
+    po_col_ref:'Ref',po_col_supplier:'Supplier',po_col_items:'Items (unit)',po_col_total:'Total',
+    po_col_due:'Due date',po_col_status:'Status',po_col_actions:'Actions',po_col_date:'Date',
+    po_btn_receive:'Receive',po_btn_order:'Order',po_btn_call:'Call',
+    po_all_received:'All orders received',po_no_orders:'No orders found',po_no_hist:'No history yet',
+    po_st_pending:'Pending',po_st_received:'Received',po_st_partial:'Partial',po_st_cancelled:'Cancelled',
+    po_cat_food:'Food',po_cat_drink:'Drinks',po_cat_home:'Household',po_cat_other:'Other',
+  },
+  fa:{dir:'rtl',
+    nav_ops:'عملیات',nav_mgmt:'مدیریت',
+    nav_pos:'فروشگاه / صندوق',nav_items:'کالاها',nav_purchase:'خرید / تأمین',
+    nav_finance:'مالی',nav_expenses:'هزینه‌ها',nav_customers:'مشتریان',
+    nav_dashboard:'داشبورد',nav_settings:'تنظیمات',nav_reset:'بازنشانی داده‌ها',
+    total_income:'درآمد کل',total_expenses:'هزینه کل',net_profit:'سود خالص',transactions:'تراکنش‌ها',
+    fin_banner:'فروش‌های POS درآمد + بهای تمام‌شده را ثبت می‌کند. دریافت کالا هزینه را ثبت می‌کند.',
+    col_ref:'شماره',col_date:'تاریخ',col_desc:'توضیح',col_cat:'دسته',col_type:'نوع',col_amount:'مبلغ',
+    exp_title:'هزینه‌ها',exp_add:'افزودن هزینه',exp_tab_all:'همه هزینه‌ها',exp_tab_add:'افزودن جدید',exp_tab_summary:'خلاصه',
+    exp_srch:'جستجوی هزینه‌ها…',
+    exp_stat_today:'امروز',exp_stat_week:'این هفته',exp_stat_month:'این ماه',exp_stat_count:'تعداد',
+    exp_cat_rent:'اجاره',exp_cat_salary:'حقوق',exp_cat_util:'خدمات',exp_cat_purchase:'خرید',
+    exp_cat_transport:'حمل‌ونقل',exp_cat_marketing:'بازاریابی',exp_cat_maintenance:'تعمیرات',
+    exp_cat_tax:'مالیات',exp_cat_other:'سایر',exp_cat_all:'همه دسته‌ها',
+    exp_lbl_amount:'مبلغ',exp_lbl_date:'تاریخ',exp_lbl_desc:'توضیح',exp_lbl_cat:'دسته‌بندی',
+    exp_lbl_note:'یادداشت (اختیاری)',exp_lbl_recur:'تکرارشونده',exp_lbl_recur_sub:'این هزینه هر ماه تکرار می‌شود',
+    exp_lbl_paid_by:'پرداخت‌کننده',exp_lbl_method:'روش پرداخت',
+    exp_method_cash:'نقدی',exp_method_card:'کارت',exp_method_transfer:'انتقال بانکی',exp_method_other:'سایر',
+    exp_save:'ذخیره هزینه',exp_cancel:'لغو',exp_delete:'حذف',exp_edit:'ویرایش',
+    exp_no_entries:'هنوز هزینه‌ای ثبت نشده',
+    exp_summary_title:'تفکیک هزینه‌ها',exp_summary_by_cat:'بر اساس دسته',exp_summary_by_month:'این ماه',
+    exp_budget:'بودجه ماهانه',exp_budget_lbl:'تنظیم بودجه',exp_budget_save:'ذخیره',exp_budget_used:'مصرف شده',
+    exp_col_desc:'توضیح',exp_col_cat:'دسته',exp_col_date:'تاریخ',exp_col_amount:'مبلغ',
+    exp_col_method:'روش پرداخت',exp_col_note:'یادداشت',exp_col_actions:'',
+    exp_largest:'بزرگترین هزینه',exp_avg:'میانگین روزانه',exp_projected:'پیش‌بینی ماه',
+    exp_filter_today:'امروز',exp_filter_week:'این هفته',exp_filter_month:'این ماه',exp_filter_all:'همه',
+    exp_toast_saved:'✓ هزینه ذخیره شد!',exp_toast_del:'✓ هزینه حذف شد',exp_toast_budget:'✓ بودجه ذخیره شد!',
+    currency_lbl:'واحد پول',
+    // Items page
+    items_sc_total:'کل کالاها',items_sc_low:'موجودی کم',items_sc_out:'اتمام موجودی',items_sc_val:'ارزش موجودی',
+    items_lbl_name:'نام کالا',items_lbl_price:'قیمت فروش',items_lbl_cost:'قیمت خرید',items_lbl_stock:'موجودی',
+    items_lbl_runit:'واحد فروش',items_lbl_wsunit:'واحد عمده',items_lbl_wsqty:'تعداد عمده',items_lbl_wsprice:'قیمت عمده',
+    items_ph_name:'نام کالا را وارد کنید',items_add:'افزودن',
+    items_col_name:'نام کالا',items_col_price:'قیمت فروش',items_col_cost:'قیمت خرید',items_col_stock:'موجودی',
+    items_col_unit:'واحد',items_col_wsunit:'واحد / تعداد عمده',items_col_wsprice:'قیمت عمده',items_col_status:'وضعیت',
+    items_st_ok:'موجود',items_st_low:'کم',items_st_out:'تمام',
+    items_toast_added:'✓ کالا اضافه شد!',
+    // Purchase page
+    po_tab_orders:'سفارشات',po_tab_receive:'دریافت کالا',po_tab_suppliers:'تأمین‌کنندگان',po_tab_history:'سابقه',
+    po_sc_total:'کل سفارشات',po_sc_pending:'در انتظار',po_sc_received:'کل دریافت شده',
+    po_srch:'جستجوی سفارشات…',po_srch_sup:'جستجوی تأمین‌کنندگان…',po_srch_hist:'جستجوی سابقه…',
+    po_filter_all:'همه',po_filter_pending:'در انتظار',po_filter_received:'دریافت شده',
+    po_new_order:'سفارش جدید',po_add_sup:'افزودن تأمین‌کننده',
+    po_col_ref:'شماره',po_col_supplier:'تأمین‌کننده',po_col_items:'کالاها (واحد)',po_col_total:'مجموع',
+    po_col_due:'تاریخ تحویل',po_col_status:'وضعیت',po_col_actions:'عملیات',po_col_date:'تاریخ',
+    po_btn_receive:'دریافت',po_btn_order:'سفارش',po_btn_call:'تماس',
+    po_all_received:'همه سفارشات دریافت شده',po_no_orders:'سفارشی یافت نشد',po_no_hist:'سابقه‌ای موجود نیست',
+    po_st_pending:'در انتظار',po_st_received:'دریافت شده',po_st_partial:'ناقص',po_st_cancelled:'لغو شده',
+    po_cat_food:'مواد غذایی',po_cat_drink:'نوشیدنی',po_cat_home:'لوازم خانگی',po_cat_other:'سایر',
+  },
+  ps:{dir:'rtl',
+    nav_ops:'عملیات',nav_mgmt:'مدیریت',
+    nav_pos:'پلورځای',nav_items:'توکي',nav_purchase:'اخیستل',
+    nav_finance:'مالي',nav_expenses:'لګښتونه',nav_customers:'پیرودونکي',
+    nav_dashboard:'ډشبورډ',nav_settings:'ترتیبات',nav_reset:'بیارغونه',
+    total_income:'ټول عاید',total_expenses:'ټول لګښت',net_profit:'خالص ګټه',transactions:'لیږدونه',
+    fin_banner:'د POS پلور عاید + لګښت ثبتوي. د توکو ترلاسه کول لګښت ثبتوي.',
+    col_ref:'شمیره',col_date:'نیټه',col_desc:'توضیح',col_cat:'ډله',col_type:'ډول',col_amount:'مبلغ',
+    exp_title:'لګښتونه',exp_add:'لګښت اضافه کړئ',exp_tab_all:'ټول لګښتونه',exp_tab_add:'نوی اضافه',exp_tab_summary:'لنډیز',
+    exp_srch:'لګښتونه وپلټئ…',
+    exp_stat_today:'نن',exp_stat_week:'دا اونۍ',exp_stat_month:'دا میاشت',exp_stat_count:'شمیر',
+    exp_cat_rent:'کرایه',exp_cat_salary:'معاش',exp_cat_util:'خدمات',exp_cat_purchase:'اخیستل',
+    exp_cat_transport:'ترانسپورت',exp_cat_marketing:'مارکیټینګ',exp_cat_maintenance:'ترمیم',
+    exp_cat_tax:'مالیه',exp_cat_other:'نور',exp_cat_all:'ټولې ډلې',
+    exp_lbl_amount:'مبلغ',exp_lbl_date:'نیټه',exp_lbl_desc:'توضیح',exp_lbl_cat:'ډله',
+    exp_lbl_note:'یادښت (اختیاري)',exp_lbl_recur:'تکراري',exp_lbl_recur_sub:'دا لګښت هره میاشت تکراریږي',
+    exp_lbl_paid_by:'تادیه کوونکی',exp_lbl_method:'د تادیې طریقه',
+    exp_method_cash:'نقدي',exp_method_card:'کارډ',exp_method_transfer:'بانکي لیږد',exp_method_other:'نور',
+    exp_save:'لګښت خوندي کړئ',exp_cancel:'لغوه',exp_delete:'ړنګول',exp_edit:'سمون',
+    exp_no_entries:'لاهم لګښت نشته',
+    exp_summary_title:'د لګښت تفصیل',exp_summary_by_cat:'د ډلې له مخې',exp_summary_by_month:'دا میاشت',
+    exp_budget:'میاشتنی بودجه',exp_budget_lbl:'بودجه تنظیم کړئ',exp_budget_save:'خوندي',exp_budget_used:'مصرف شوی',
+    exp_col_desc:'توضیح',exp_col_cat:'ډله',exp_col_date:'نیټه',exp_col_amount:'مبلغ',
+    exp_col_method:'طریقه',exp_col_note:'یادښت',exp_col_actions:'',
+    exp_largest:'لوی لګښت',exp_avg:'ورځنی اوسط',exp_projected:'د میاشتې اټکل',
+    exp_filter_today:'نن',exp_filter_week:'دا اونۍ',exp_filter_month:'دا میاشت',exp_filter_all:'ټول وخت',
+    exp_toast_saved:'✓ لګښت خوندي شو!',exp_toast_del:'✓ لګښت ړنګ شو',exp_toast_budget:'✓ بودجه خوندي شوه!',
+    currency_lbl:'اسعار',
+    // Items page
+    items_sc_total:'ټول توکي',items_sc_low:'لږ ذخیره',items_sc_out:'ذخیره نشته',items_sc_val:'د ذخیرې ارزښت',
+    items_lbl_name:'نوم',items_lbl_price:'د پلور نرخ',items_lbl_cost:'د اخیستو نرخ',items_lbl_stock:'ذخیره',
+    items_lbl_runit:'د پلور واحد',items_lbl_wsunit:'د تول واحد',items_lbl_wsqty:'د تول مقدار',items_lbl_wsprice:'د تول نرخ',
+    items_ph_name:'د توکي نوم',items_add:'اضافه کړئ',
+    items_col_name:'نوم',items_col_price:'نرخ',items_col_cost:'لګښت',items_col_stock:'ذخیره',
+    items_col_unit:'واحد',items_col_wsunit:'تول واحد / مقدار',items_col_wsprice:'د تول نرخ',items_col_status:'حالت',
+    items_st_ok:'شته',items_st_low:'لږ',items_st_out:'نشته',
+    items_toast_added:'✓ توکی اضافه شو!',
+    // Purchase page
+    po_tab_orders:'امرونه',po_tab_receive:'توکي ترلاسه کول',po_tab_suppliers:'چمتو کوونکي',po_tab_history:'تاریخچه',
+    po_sc_total:'ټول امرونه',po_sc_pending:'پاتې',po_sc_received:'ټول ترلاسه شوي',
+    po_srch:'امرونه وپلټئ…',po_srch_sup:'چمتو کوونکي وپلټئ…',po_srch_hist:'تاریخچه وپلټئ…',
+    po_filter_all:'ټول',po_filter_pending:'پاتې',po_filter_received:'ترلاسه شوي',
+    po_new_order:'نوی امر',po_add_sup:'چمتو کوونکی اضافه کړئ',
+    po_col_ref:'شمیره',po_col_supplier:'چمتو کوونکی',po_col_items:'توکي (واحد)',po_col_total:'ټول',
+    po_col_due:'د تحویلۍ نیټه',po_col_status:'حالت',po_col_actions:'کړنې',po_col_date:'نیټه',
+    po_btn_receive:'ترلاسه',po_btn_order:'امر',po_btn_call:'اړیکه',
+    po_all_received:'ټول امرونه ترلاسه شوي',po_no_orders:'امر ونه موندل شو',po_no_hist:'تاریخچه نشته',
+    po_st_pending:'پاتې',po_st_received:'ترلاسه شوی',po_st_partial:'نیمګړی',po_st_cancelled:'لغو شوی',
+    po_cat_food:'خواړه',po_cat_drink:'څښاک',po_cat_home:'کورني توکي',po_cat_other:'نور',
+  }
+};
+let _lang='en';
+function T(k){return(LANGS[_lang]||LANGS.en)[k]||(LANGS.en[k])||k;}
+function setLang(l){
+  _lang=l;
+  db.settings.lang=l;
+  saveDB();
+  document.documentElement.setAttribute('dir',LANGS[l].dir);
+  document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.lbtn').forEach(b=>{
+    if((b.textContent==='فارسی'&&l==='fa')||(b.textContent==='EN'&&l==='en')||(b.textContent==='پښتو'&&l==='ps'))b.classList.add('on');
+  });
+  // update sidebar labels
+  const ids={
+    'sn-lbl-ops':T('nav_ops'),'sn-lbl-mgmt':T('nav_mgmt'),
+    'sn-pos':T('nav_pos'),'sn-items':T('nav_items'),'sn-purchase':T('nav_purchase'),
+    'sn-finance':T('nav_finance'),'sn-expenses':T('nav_expenses'),
+    'sn-customers':T('nav_customers'),'sn-dashboard':T('nav_dashboard'),
+    'sn-settings':T('nav_settings'),'sn-reset':T('nav_reset'),
+  };
+  Object.entries(ids).forEach(([id,txt])=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
+  render(_curPage);
+}
+
+/* ════════════════════════════════════════════
+   FINANCE
+════════════════════════════════════════════ */
+function renderFinance(){
+  const inc=db.finance.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
+  const exp=db.finance.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
+  const net=inc-exp;
+  document.getElementById('main').innerHTML=`
+    <div class="stat-row">
+      <div class="sc sc-green"><div class="sl">${T('total_income')}</div><div class="sv" style="color:var(--green)">${db.settings.currency}${inc.toFixed(2)}</div></div>
+      <div class="sc sc-red"><div class="sl">${T('total_expenses')}</div><div class="sv" style="color:var(--red)">${db.settings.currency}${exp.toFixed(2)}</div></div>
+      <div class="sc ${net>=0?'sc-green':'sc-red'}"><div class="sl">${T('net_profit')}</div><div class="sv" style="color:${net>=0?'var(--green)':'var(--red)'}">${db.settings.currency}${net.toFixed(2)}</div></div>
+      <div class="sc sc-accent"><div class="sl">${T('transactions')}</div><div class="sv" style="color:var(--ac)">${db.finance.length}</div></div>
+    </div>
+    <div class="info-banner"><i class="ti ti-bolt" style="font-size:14px"></i>${T('fin_banner')}</div>
+    <div class="card"><table>
+      <thead><tr>
+        <th style="width:75px">${T('col_ref')}</th><th style="width:82px">${T('col_date')}</th><th style="width:145px">${T('col_desc')}</th>
+        <th style="width:72px">${T('col_cat')}</th><th style="width:68px">${T('col_type')}</th><th style="width:90px">${T('col_amount')}</th>
+      </tr></thead>
+      <tbody>${db.finance.slice().reverse().slice(0,30).map(x=>`<tr>
+        <td><span style="color:var(--ac);font-weight:600;font-size:11px">${x.ref||'—'}</span></td>
+        <td style="color:var(--t2)">${x.date}</td>
+        <td style="font-weight:500">${x.desc}</td>
+        <td><span class="badge b-gray">${x.cat}</span></td>
+        <td><span class="badge ${x.type==='income'?'b-g':'b-r'}">${x.type}</span></td>
+        <td style="font-weight:700;color:${x.type==='income'?'var(--green)':'var(--red)'}">${x.type==='income'?'+':'−'}${db.settings.currency}${x.amount.toFixed(2)}</td>
+      </tr>`).join('')||`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--t2)">No transactions yet</td></tr>`}
+      </tbody></table></div>`;
+}
+
+/* ════════════════════════════════════════════
+   EXPENSES MODULE (full trilingual + RTL)
+════════════════════════════════════════════ */
+if(!DEFAULT.expenses) DEFAULT.expenses=[];
+if(!db.expenses) db.expenses=[];
+if(!db.settings.expBudget) db.settings.expBudget=0;
+if(!db.counters.exp) db.counters.exp=1;
+
+const EXP_CATS=['rent','salary','util','transport','marketing','maintenance','tax','purchase','other'];
+const EXP_CAT_COLORS={rent:'#7c3aed',salary:'#2563eb',util:'#d97706',transport:'#059669',marketing:'#db2777',maintenance:'#ea580c',tax:'#dc2626',purchase:'#0891b2',other:'#6b7280'};
+
+let _expTab='all', _expCatFilter='all', _expPeriod='month', _expEditId=null;
+
+function getExpPeriodDates(){
+  const now=new Date();const td=now.toISOString().slice(0,10);
+  if(_expPeriod==='today')return{from:td,to:td};
+  if(_expPeriod==='week'){const w=new Date(now-6*864e5).toISOString().slice(0,10);return{from:w,to:td};}
+  if(_expPeriod==='month'){const m=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);return{from:m,to:td};}
+  return{from:'2000-01-01',to:td};
+}
+function filterExpenses(){
+  const {from,to}=getExpPeriodDates();
+  let list=db.expenses.filter(e=>e.date>=from&&e.date<=to);
+  if(_expCatFilter!=='all')list=list.filter(e=>e.cat===_expCatFilter);
+  return list.slice().reverse();
+}
+function expCatLabel(cat){return T('exp_cat_'+cat)||cat;}
+function expTotal(list){return list.reduce((s,e)=>s+e.amount,0);}
+
+function renderExpenses(){
+  const allExp=db.expenses;
+  const today=new Date().toISOString().slice(0,10);
+  const weekAgo=new Date(Date.now()-6*864e5).toISOString().slice(0,10);
+  const monthStart=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10);
+  const todayAmt=expTotal(allExp.filter(e=>e.date===today));
+  const weekAmt=expTotal(allExp.filter(e=>e.date>=weekAgo));
+  const monthAmt=expTotal(allExp.filter(e=>e.date>=monthStart));
+  const budget=db.settings.expBudget||0;
+  const budgetPct=budget>0?Math.min(100,Math.round(monthAmt/budget*100)):0;
+
+  document.getElementById('main').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <h2 style="font-size:15px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:7px">
+        <i class="ti ti-receipt-2" style="font-size:18px;color:var(--red)"></i>${T('exp_title')}
+      </h2>
+      <button class="btn btn-red" onclick="openExpModal(null)"><i class="ti ti-plus"></i>${T('exp_add')}</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="sc sc-red"><div class="sl">${T('exp_stat_today')}</div><div class="sv" style="color:var(--red)">${db.settings.currency}${todayAmt.toFixed(2)}</div></div>
+      <div class="sc sc-amber"><div class="sl">${T('exp_stat_week')}</div><div class="sv" style="color:var(--amber)">${db.settings.currency}${weekAmt.toFixed(2)}</div></div>
+      <div class="sc sc-purple"><div class="sl">${T('exp_stat_month')}</div><div class="sv" style="color:var(--purple)">${db.settings.currency}${monthAmt.toFixed(2)}</div></div>
+      <div class="sc sc-accent"><div class="sl">${T('exp_stat_count')}</div><div class="sv" style="color:var(--ac)">${allExp.length}</div></div>
+    </div>
+
+    ${budget>0?`<!-- Budget bar -->
+    <div class="card" style="margin-bottom:12px"><div class="cb" style="padding:10px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:600;color:var(--t1)">${T('exp_budget')}</span>
+        <span style="font-size:12px;color:${budgetPct>90?'var(--red)':'var(--t2)'}"><b style="color:${budgetPct>90?'var(--red)':'var(--green)'}">${budgetPct}%</b> ${T('exp_budget_used')} — ${db.settings.currency}${monthAmt.toFixed(2)} / ${db.settings.currency}${budget.toFixed(2)}</span>
+      </div>
+      <div class="exp-progress-bg"><div class="exp-progress-fill" style="width:${budgetPct}%;background:${budgetPct>90?'var(--red)':budgetPct>70?'var(--amber)':'var(--green)'}"></div></div>
+    </div></div>`:''}
+
+    <!-- Tabs -->
+    <div class="exp-tabs">
+      <button class="exp-tab${_expTab==='all'?' on':''}" onclick="_expTab='all';renderExpenses()"><i class="ti ti-list"></i>${T('exp_tab_all')}</button>
+      <button class="exp-tab${_expTab==='add'?' on':''}" onclick="_expTab='add';renderExpenses()"><i class="ti ti-plus"></i>${T('exp_tab_add')}</button>
+      <button class="exp-tab${_expTab==='summary'?' on':''}" onclick="_expTab='summary';renderExpenses()"><i class="ti ti-chart-pie-2"></i>${T('exp_tab_summary')}</button>
+    </div>
+
+    <div id="exp-tab-content"></div>`;
+
+  if(_expTab==='all') renderExpTabAll();
+  else if(_expTab==='add') renderExpTabAdd(null);
+  else renderExpTabSummary();
+}
+
+function renderExpTabAll(){
+  const filtered=filterExpenses();
+  const total=expTotal(filtered);
+  document.getElementById('exp-tab-content').innerHTML=`
+    <!-- Filters -->
+    <div class="tbar exp-filter-row" style="flex-wrap:wrap;gap:6px;margin-bottom:10px">
+      <div class="srch-w" style="min-width:180px">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="${T('exp_srch')}" oninput="filterExpSearch(this.value)" id="exp-srch-input">
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${['all',...EXP_CATS].map(c=>`<button class="exp-cat-chip${_expCatFilter===c?' on':''}" onclick="_expCatFilter='${c}';renderExpTabAll()">${c==='all'?T('exp_cat_all'):expCatLabel(c)}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:4px;margin-left:auto">
+        ${['today','week','month','all'].map(p=>`<button class="filt-btn${_expPeriod===p?' on':''}" onclick="_expPeriod='${p}';renderExpTabAll()">${T('exp_filter_'+p)}</button>`).join('')}
+      </div>
+    </div>
+    <!-- Total row -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:var(--redl);border-radius:var(--radius);margin-bottom:10px;border:1px solid #fca5a5">
+      <span style="font-size:12px;font-weight:600;color:var(--red)">${T('total_expenses')} (${filtered.length})</span>
+      <span style="font-size:15px;font-weight:700;color:var(--red)">${db.settings.currency}${total.toFixed(2)}</span>
+    </div>
+    <!-- Table -->
+    <div class="card">
+      <table>
+        <thead><tr>
+          <th style="width:130px">${T('exp_col_desc')}</th>
+          <th style="width:90px">${T('exp_col_cat')}</th>
+          <th style="width:85px">${T('exp_col_date')}</th>
+          <th style="width:90px">${T('exp_col_amount')}</th>
+          <th style="width:80px">${T('exp_col_method')}</th>
+          <th style="width:110px">${T('exp_col_note')}</th>
+          <th style="width:68px">${T('exp_col_actions')}</th>
+        </tr></thead>
+        <tbody id="exp-tbody">
+          ${filtered.length===0?`<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--t2)"><i class="ti ti-receipt-2" style="font-size:28px;display:block;margin:0 auto 8px;opacity:.3"></i>${T('exp_no_entries')}</td></tr>`
+          :filtered.map(e=>expRow(e)).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function expRow(e){
+  const col=EXP_CAT_COLORS[e.cat]||'#6b7280';
+  return`<tr>
+    <td style="font-weight:600">${e.desc}</td>
+    <td><span class="badge" style="background:${col}18;color:${col};border:1px solid ${col}30">${expCatLabel(e.cat)}</span></td>
+    <td style="color:var(--t2)">${e.date}</td>
+    <td style="font-weight:700;color:var(--red)">${db.settings.currency}${e.amount.toFixed(2)}</td>
+    <td><span class="badge b-gray">${e.method||'—'}</span></td>
+    <td style="color:var(--t2);font-size:11px">${e.note||'—'}</td>
+    <td>
+      <div style="display:flex;gap:4px">
+        <button class="btn-sm" onclick="openExpModal(${e.id})" title="${T('exp_edit')}"><i class="ti ti-edit" style="font-size:12px"></i></button>
+        <button class="btn-sm red" onclick="deleteExp(${e.id})" title="${T('exp_delete')}"><i class="ti ti-trash" style="font-size:12px"></i></button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function filterExpSearch(q){
+  const rows=document.querySelectorAll('#exp-tbody tr');
+  if(!q){rows.forEach(r=>r.style.display='');return;}
+  const ql=q.toLowerCase();
+  rows.forEach(r=>{const txt=(r.textContent||'').toLowerCase();r.style.display=txt.includes(ql)?'':'none';});
+}
+
+function renderExpTabAdd(prefill){
+  const today=new Date().toISOString().slice(0,10);
+  const e=prefill;
+  const budget=db.settings.expBudget||0;
+  const monthAmt=expTotal(db.expenses.filter(e2=>e2.date>=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10)));
+  const budgetPct=budget>0?Math.min(100,Math.round(monthAmt/budget*100)):0;
+  document.getElementById('exp-tab-content').innerHTML=`
+    <div class="card" style="max-width:560px;margin:0 auto">
+      <div class="ch"><span><i class="ti ti-receipt-2" style="color:var(--red)"></i>${T('exp_add')}</span></div>
+      <div class="cb">
+        <div class="fr2" style="margin-bottom:10px">
+          <div class="fr">
+            <label class="fl">${T('exp_lbl_amount')} (${db.settings.currency}) *</label>
+            <input class="fi" type="number" id="exp-amt" min="0" step="0.01" value="${e?.amount||''}" placeholder="0.00" style="font-size:15px;font-weight:600;color:var(--red)">
+          </div>
+          <div class="fr">
+            <label class="fl">${T('exp_lbl_date')} *</label>
+            <input class="fi" type="date" id="exp-date" value="${e?.date||today}">
+          </div>
+        </div>
+        <div class="fr" style="margin-bottom:10px">
+          <label class="fl">${T('exp_lbl_desc')} *</label>
+          <input class="fi" type="text" id="exp-desc" value="${e?.desc||''}" placeholder="e.g. Monthly rent payment" style="height:36px">
+        </div>
+        <div class="fr" style="margin-bottom:10px">
+          <label class="fl">${T('exp_lbl_cat')}</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--bd)">
+            ${EXP_CATS.map(c=>{const col=EXP_CAT_COLORS[c];return`<label style="cursor:pointer">
+              <input type="radio" name="exp-cat" value="${c}" ${(e?.cat||'other')===c?'checked':''} style="display:none" onchange="document.querySelectorAll('[data-cat]').forEach(x=>x.classList.remove('on'));document.querySelector('[data-cat=${c}]').classList.add('on')">
+              <span class="exp-cat-chip${(e?.cat||'other')===c?' on':''}" data-cat="${c}" onclick="document.querySelectorAll('input[name=exp-cat]').forEach(x=>{x.checked=x.value==='${c}'});document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('on',x.dataset.cat==='${c}'))" style="${(e?.cat||'other')===c?'background:'+col+'20;color:'+col+';border-color:'+col+'50':''}">
+                ${expCatLabel(c)}
+              </span>
+            </label>`}).join('')}
+          </div>
+        </div>
+        <div class="fr2" style="margin-bottom:10px">
+          <div class="fr">
+            <label class="fl">${T('exp_lbl_method')}</label>
+            <select class="fi" id="exp-method" style="background:var(--bg2)">
+              ${['cash','card','transfer','other'].map(m=>`<option value="${m}"${e?.method===m?' selected':''}>${T('exp_method_'+m)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fr">
+            <label class="fl">${T('exp_lbl_paid_by')}</label>
+            <select class="fi" id="exp-paid-by" style="background:var(--bg2)">
+              <option value="">—</option>
+              ${db.users.map(u=>`<option value="${u.name}"${e?.paidBy===u.name?' selected':''}>${u.name}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="fr" style="margin-bottom:14px">
+          <label class="fl">${T('exp_lbl_note')}</label>
+          <input class="fi" type="text" id="exp-note" value="${e?.note||''}" placeholder="…">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);margin-bottom:14px">
+          <div>
+            <div style="font-size:12.5px;font-weight:500;color:var(--t1)">${T('exp_lbl_recur')}</div>
+            <div style="font-size:11px;color:var(--t2)">${T('exp_lbl_recur_sub')}</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="exp-recur" ${e?.recur?'checked':''}><span class="slider"></span></label>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn-sm" onclick="_expTab='all';renderExpenses()">${T('exp_cancel')}</button>
+          <button class="btn btn-red" onclick="saveExpense(${e?.id||'null'})"><i class="ti ti-check"></i>${T('exp_save')}</button>
+        </div>
+        ${budget>0?`<div style="margin-top:12px;padding:8px 12px;background:var(--amberl);border-radius:var(--radius);font-size:11.5px;color:var(--amber);border:1px solid #fde68a"><i class="ti ti-alert-triangle" style="font-size:13px;margin-right:5px"></i>${T('exp_budget')}: ${db.settings.currency}${monthAmt.toFixed(2)} / ${db.settings.currency}${budget.toFixed(2)} (${budgetPct}% ${T('exp_budget_used')})</div>`:''}
+      </div>
+    </div>`;
+}
+
+function renderExpTabSummary(){
+  const today=new Date();
+  const monthStart=new Date(today.getFullYear(),today.getMonth(),1).toISOString().slice(0,10);
+  const monthExp=db.expenses.filter(e=>e.date>=monthStart);
+  const monthTotal=expTotal(monthExp);
+  const allTotal=expTotal(db.expenses);
+  const daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+  const dayOfMonth=today.getDate();
+  const projected=dayOfMonth>0?monthTotal/dayOfMonth*daysInMonth:0;
+  const largest=db.expenses.length?db.expenses.reduce((a,b)=>b.amount>a.amount?b:a):null;
+
+  // by category
+  const byCat={};
+  monthExp.forEach(e=>{byCat[e.cat]=(byCat[e.cat]||0)+e.amount;});
+  const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+
+  // budget setup
+  const budget=db.settings.expBudget||0;
+
+  document.getElementById('exp-tab-content').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px">
+      <div class="sc sc-red"><div class="sl">${T('exp_stat_month')}</div><div class="sv" style="color:var(--red)">${db.settings.currency}${monthTotal.toFixed(2)}</div></div>
+      <div class="sc sc-amber"><div class="sl">${T('exp_projected')}</div><div class="sv" style="color:var(--amber)">${db.settings.currency}${projected.toFixed(2)}</div></div>
+      <div class="sc sc-accent"><div class="sl">${T('exp_avg')}</div><div class="sv" style="color:var(--ac)">${db.settings.currency}${(dayOfMonth>0?monthTotal/dayOfMonth:0).toFixed(2)}</div></div>
+      ${largest?`<div class="sc sc-purple"><div class="sl">${T('exp_largest')}</div><div class="sv" style="color:var(--purple);font-size:13px;font-weight:700">${db.settings.currency}${largest.amount.toFixed(2)}</div><div style="font-size:10.5px;color:var(--t2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${largest.desc}</div></div>`:''}
+    </div>
+
+    <!-- Budget setup -->
+    <div class="card" style="margin-bottom:12px"><div class="cb">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px">${T('exp_budget')}</div>
+          <div style="font-size:11px;color:var(--t2)">${T('exp_budget_lbl')}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-size:12px;color:var(--t2)">${db.settings.currency}</span>
+          <input class="fi" type="number" id="budget-input" value="${budget||''}" placeholder="0.00" style="width:110px">
+          <button class="btn btn-green" onclick="saveBudget()"><i class="ti ti-check"></i>${T('exp_budget_save')}</button>
+        </div>
+      </div>
+      ${budget>0?`<div style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:4px">
+          <span>${db.settings.currency}${monthTotal.toFixed(2)} ${T('exp_budget_used')}</span>
+          <span>${db.settings.currency}${Math.max(0,budget-monthTotal).toFixed(2)} remaining</span>
+        </div>
+        <div class="exp-progress-bg"><div class="exp-progress-fill" style="width:${Math.min(100,monthTotal/budget*100).toFixed(1)}%;background:${monthTotal>budget?'var(--red)':monthTotal/budget>0.8?'var(--amber)':'var(--green)'}"></div></div>
+      </div>`:''}
+    </div></div>
+
+    <!-- Category breakdown -->
+    <div class="card"><div class="ch"><span><i class="ti ti-chart-pie-2" style="color:var(--red)"></i>${T('exp_summary_by_cat')} — ${T('exp_summary_by_month')}</span></div><div class="cb">
+      ${sorted.length===0?`<p style="text-align:center;color:var(--t2);padding:16px">${T('exp_no_entries')}</p>`
+      :sorted.map(([cat,amt])=>{
+        const pct=monthTotal>0?Math.round(amt/monthTotal*100):0;
+        const col=EXP_CAT_COLORS[cat]||'#6b7280';
+        return`<div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:12.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:6px">
+              <span style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></span>${expCatLabel(cat)}
+            </span>
+            <span style="font-size:12.5px;font-weight:700;color:${col}">${db.settings.currency}${amt.toFixed(2)} <span style="font-size:10.5px;font-weight:400;color:var(--t2)">(${pct}%)</span></span>
+          </div>
+          <div class="exp-progress-bg"><div class="exp-progress-fill" style="width:${pct}%;background:${col}"></div></div>
+        </div>`;
+      }).join('')}
+    </div></div>`;
+}
+
+function openExpModal(id){
+  const e=id?db.expenses.find(x=>x.id===id):null;
+  _expEditId=id;
+  _expTab='add';
+  renderExpenses();
+  if(e){
+    // pre-fill
+    setTimeout(()=>{
+      if(document.getElementById('exp-amt'))document.getElementById('exp-amt').value=e.amount;
+      if(document.getElementById('exp-date'))document.getElementById('exp-date').value=e.date;
+      if(document.getElementById('exp-desc'))document.getElementById('exp-desc').value=e.desc;
+      if(document.getElementById('exp-method'))document.getElementById('exp-method').value=e.method||'cash';
+      if(document.getElementById('exp-note'))document.getElementById('exp-note').value=e.note||'';
+      if(document.getElementById('exp-recur'))document.getElementById('exp-recur').checked=!!e.recur;
+      // mark cat chip
+      document.querySelectorAll('input[name=exp-cat]').forEach(x=>{x.checked=x.value===e.cat;});
+      document.querySelectorAll('[data-cat]').forEach(x=>{
+        const c=x.dataset.cat;const col=EXP_CAT_COLORS[c]||'#6b7280';
+        if(c===e.cat){x.classList.add('on');x.style.background=col+'20';x.style.color=col;x.style.borderColor=col+'50';}
+        else{x.classList.remove('on');x.style=''}
+      });
+    },50);
+  }
+}
+
+function saveExpense(id){
+  const amt=parseFloat(document.getElementById('exp-amt')?.value);
+  const desc=(document.getElementById('exp-desc')?.value||'').trim();
+  if(!amt||!desc){showToast('⚠ Amount and description are required');return;}
+  const cat=document.querySelector('input[name=exp-cat]:checked')?.value||'other';
+  const entry={
+    id:id||db.counters.exp++,
+    date:document.getElementById('exp-date')?.value||new Date().toISOString().slice(0,10),
+    desc,amt:null,
+    amount:amt,
+    cat,
+    method:document.getElementById('exp-method')?.value||'cash',
+    paidBy:document.getElementById('exp-paid-by')?.value||'',
+    note:document.getElementById('exp-note')?.value||'',
+    recur:document.getElementById('exp-recur')?.checked||false
+  };
+  if(id){
+    const idx=db.expenses.findIndex(e=>e.id===id);
+    if(idx>=0)db.expenses[idx]=entry;
+    // also update finance log if linked
+    const fi=db.finance.findIndex(f=>f.ref==='EXP-'+id);
+    if(fi>=0){db.finance[fi].amount=amt;db.finance[fi].desc=desc;db.finance[fi].date=entry.date;}
+  } else {
+    db.expenses.push(entry);
+    db.finance.push({id:db.counters.finance++,date:entry.date,desc:desc,cat:cat,amount:amt,type:'expense',ref:'EXP-'+entry.id});
+  }
+  saveDB();
+  _expTab='all';
+  renderExpenses();
+  showToast(T('exp_toast_saved'));
+}
+
+function deleteExp(id){
+  if(!confirm('Delete this expense?'))return;
+  db.expenses=db.expenses.filter(e=>e.id!==id);
+  db.finance=db.finance.filter(f=>f.ref!=='EXP-'+id);
+  saveDB();renderExpenses();showToast(T('exp_toast_del'));
+}
+
+function saveBudget(){
+  const v=parseFloat(document.getElementById('budget-input')?.value)||0;
+  db.settings.expBudget=v;
+  saveDB();renderExpTabSummary();showToast(T('exp_toast_budget'));
+}
+
+/* ════════════════════════════════════════════
+   CUSTOMERS
+════════════════════════════════════════════ */
+function renderCustomers(){
+  document.getElementById('main').innerHTML=`
+    <div class="form-row">
+      <div class="col"><label class="fl">Name</label><input class="fi" id="nc-name" type="text" placeholder="Customer name" style="width:140px"></div>
+      <div class="col"><label class="fl">Phone</label><input class="fi" id="nc-phone" type="tel" placeholder="+31..." style="width:120px"></div>
+      <div class="col"><label class="fl">&nbsp;</label><button class="btn" onclick="addCustomer()"><i class="ti ti-user-plus"></i>Add Customer</button></div>
+    </div>
+    <div class="card"><table>
+      <thead><tr>
+        <th style="width:130px">Name</th><th style="width:110px">Phone</th><th style="width:55px">Visits</th>
+        <th style="width:80px">Spent</th><th style="width:65px">Points</th><th style="width:75px">Balance</th><th style="width:45px"></th>
+      </tr></thead>
+      <tbody>${db.customers.map(c=>`<tr>
+        <td><div style="display:flex;align-items:center;gap:7px">
+          <div style="width:26px;height:26px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--ac);flex-shrink:0">${c.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+          <span style="font-weight:600">${c.name}</span>
+        </div></td>
+        <td style="color:var(--t2)">${c.phone||'—'}</td>
+        <td style="font-weight:500">${c.visits||0}</td>
+        <td style="color:var(--green);font-weight:600">${db.settings.currency}${(c.totalSpent||0).toFixed(2)}</td>
+        <td><span class="badge b-p">${c.points||0} pts</span></td>
+        <td>${c.balance>0?`<span class="badge b-r">−${db.settings.currency}${c.balance.toFixed(2)}</span>`:'<span style="color:var(--t3)">—</span>'}</td>
+        <td><button class="btn-sm btn-danger" onclick="deleteCustomer(${c.id})"><i class="ti ti-trash" style="font-size:12px"></i></button></td>
+      </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--t2)">No customers yet</td></tr>'}
+      </tbody></table></div>`;
+}
+function addCustomer(){
+  const name=document.getElementById('nc-name')?.value?.trim();if(!name)return;
+  db.customers.push({id:db.counters.customer++,name,phone:document.getElementById('nc-phone')?.value||'',points:0,balance:0,totalSpent:0,visits:0});
+  saveDB();renderCustomers();showToast('✓ Customer added!');
+}
+function deleteCustomer(id){db.customers=db.customers.filter(c=>c.id!==id);saveDB();renderCustomers();}
+
+/* ════════════════════════════════════════════
+   SETTINGS
+════════════════════════════════════════════ */
+const ROLES=[
+  {key:'owner',perms:['sales','items','purchase','finance','customers','reports','settings','discount','void','refund']},
+  {key:'admin',perms:['sales','items','purchase','finance','customers','reports','discount','void','refund']},
+  {key:'cashier',perms:['sales','customers','discount']},
+  {key:'viewer',perms:['reports']},
+];
+const MONTHLY_PROFIT=3800;
+let _setPage='store';
+const PERMS=['sales','items','purchase','finance','customers','reports','settings','discount','void','refund'];
+
+function renderSettings(){
+  document.getElementById('main').innerHTML=`
+    <div style="display:flex;height:100%">
+      <nav class="set-sidebar">
+        <div class="ssn-section">General</div>
+        <button class="ssn${_setPage==='store'?' on':''}" onclick="switchSetPage('store',this)"><i class="ti ti-building-store"></i>Store info</button>
+        <button class="ssn${_setPage==='tax'?' on':''}" onclick="switchSetPage('tax',this)"><i class="ti ti-receipt-tax"></i>Tax &amp; currency</button>
+        <div class="ssn-section">Access control</div>
+        <button class="ssn${_setPage==='users'?' on':''}" onclick="switchSetPage('users',this)"><i class="ti ti-users"></i>Users</button>
+        <button class="ssn${_setPage==='roles'?' on':''}" onclick="switchSetPage('roles',this)"><i class="ti ti-shield"></i>Roles &amp; permissions</button>
+        <div class="ssn-section">Finance</div>
+        <button class="ssn${_setPage==='partners'?' on':''}" onclick="switchSetPage('partners',this)"><i class="ti ti-briefcase"></i>Partners &amp; dividends</button>
+        <div class="ssn-section">Data</div>
+        <button class="ssn${_setPage==='backup'?' on':''}" onclick="switchSetPage('backup',this)"><i class="ti ti-database"></i>Backup</button>
+        <button class="ssn${_setPage==='reset'?' on':''}" onclick="switchSetPage('reset',this)"><i class="ti ti-refresh-alert"></i>Reset</button>
+      </nav>
+      <div class="set-main" id="set-view"></div>
+    </div>`;
+  renderSetPage(_setPage);
+}
+function switchSetPage(page,btn){
+  _setPage=page;
+  document.querySelectorAll('.ssn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  renderSetPage(page);
+}
+function renderSetPage(page){
+  if(page==='store')renderSetStore();
+  else if(page==='tax')renderSetTax();
+  else if(page==='users')renderSetUsers();
+  else if(page==='roles')renderSetRoles();
+  else if(page==='partners')renderSetPartners();
+  else if(page==='backup')renderSetBackup();
+  else renderSetReset();
+}
+
+function renderSetStore(){
+  document.getElementById('set-view').innerHTML=`
+    <div class="page-head"><span class="page-title"><i class="ti ti-building-store"></i>Store info</span></div>
+    <div class="card"><div class="cb">
+      ${[['Store name','store_name','storeName'],['Phone','store_phone','phone'],['Address','store_addr','addr'],['Email','store_email','email'],['Receipt footer','store_receipt','receiptFooter']].map(([label,key,field])=>`
+        <div class="store-row"><label class="store-lbl">${label}</label><input class="store-val" type="text" id="ss-${field}" value="${db.settings[field]||''}"></div>`).join('')}
+      <button class="save-btn" onclick="saveStoreSettings()">Save</button>
+    </div></div>`;
+}
+function saveStoreSettings(){
+  ['storeName','phone','addr','email','receiptFooter'].forEach(f=>{const el=document.getElementById('ss-'+f);if(el)db.settings[f]=el.value;});
+  saveDB();showToast('✓ Store settings saved!');
+}
+
+function renderSetTax(){
+  const taxOn=db.settings.taxEnabled!==false; // default ON
+  const incl=db.settings.taxInclusive===true;
+  const showOnReceipt=db.settings.taxOnReceipt!==false;
+  document.getElementById('set-view').innerHTML=`
+    <div class="page-head"><span class="page-title"><i class="ti ti-receipt-tax"></i>Tax &amp; currency</span></div>
+
+    <!-- Tax master toggle -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="ch"><span><i class="ti ti-toggle-right"></i>Tax — master switch</span></div>
+      <div class="cb">
+        <div class="toggle-row" style="padding:10px 0 14px">
+          <div class="toggle-info">
+            <span class="toggle-lbl" style="font-size:14px;font-weight:600">Tax enabled</span>
+            <span class="toggle-sub">When OFF, no tax is applied or shown anywhere in the POS</span>
+          </div>
+          <label class="toggle" style="width:44px;height:24px">
+            <input type="checkbox" id="st-tax-on" ${taxOn?'checked':''} onchange="onTaxToggle()">
+            <span class="slider" style="border-radius:24px"></span>
+          </label>
+        </div>
+        <div id="tax-fields" style="${taxOn?'':'opacity:.4;pointer-events:none'}">
+          <!-- Rate + currency row -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label class="fl" style="margin-bottom:5px">Tax rate (%)</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input class="store-val fi" type="number" id="st-tax" value="${db.settings.taxRate}" min="0" max="100" step="0.5" style="width:90px;font-size:16px;font-weight:700;color:var(--ac);text-align:center" oninput="updateTaxPreview()">
+                <span style="font-size:13px;font-weight:600;color:var(--t2)">%</span>
+              </div>
+              <div id="tax-preview" style="margin-top:6px;font-size:11.5px;color:var(--t2)"></div>
+            </div>
+            <div>
+              <label class="fl" style="margin-bottom:5px">Currency symbol</label>
+              <select class="store-val fi" id="st-cur" style="width:100%">
+                ${['€ Euro','$ USD','﷼ IRR','؋ AFN','£ GBP','₺ TRY'].map(c=>`<option${c.startsWith(db.settings.currency)?' selected':''}>${c}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <!-- Tax name -->
+          <div style="margin-bottom:14px">
+            <label class="fl" style="margin-bottom:5px">Tax label name</label>
+            <input class="fi" type="text" id="st-tax-name" value="${db.settings.taxName||'Tax'}" placeholder="e.g. VAT, GST, Tax" style="width:200px">
+          </div>
+          <!-- Sub-toggles -->
+          <div style="border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden">
+            <div class="toggle-row" style="padding:9px 12px;border-bottom:1px solid var(--bd)">
+              <div class="toggle-info">
+                <span class="toggle-lbl">Prices include tax</span>
+                <span class="toggle-sub">Item prices already include tax — tax is extracted from sale total</span>
+              </div>
+              <label class="toggle"><input type="checkbox" id="st-tax-incl" ${incl?'checked':''}><span class="slider"></span></label>
+            </div>
+            <div class="toggle-row" style="padding:9px 12px">
+              <div class="toggle-info">
+                <span class="toggle-lbl">Show tax on receipt</span>
+                <span class="toggle-sub">Print a separate tax line on printed receipts</span>
+              </div>
+              <label class="toggle"><input type="checkbox" id="st-tax-receipt" ${showOnReceipt?'checked':''}><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live preview card -->
+    <div class="card" id="tax-preview-card">
+      <div class="ch"><span><i class="ti ti-calculator"></i>Live preview</span></div>
+      <div class="cb" id="tax-preview-body"></div>
+    </div>
+
+    <button class="save-btn" onclick="saveTaxSettings()"><i class="ti ti-check" style="font-size:13px;margin-right:4px"></i>Save tax settings</button>`;
+  updateTaxPreview();
+}
+function onTaxToggle(){
+  const on=document.getElementById('st-tax-on')?.checked;
+  const fields=document.getElementById('tax-fields');
+  if(fields)fields.style.cssText=on?'':'opacity:.4;pointer-events:none';
+  updateTaxPreview();
+}
+function updateTaxPreview(){
+  const on=document.getElementById('st-tax-on')?.checked!==false;
+  const rate=parseFloat(document.getElementById('st-tax')?.value)||0;
+  const incl=document.getElementById('st-tax-incl')?.checked;
+  const name=document.getElementById('st-tax-name')?.value||'Tax';
+  const cur=db.settings.currency||'€';
+  const examplePrice=10.00;
+  let taxAmt,total,display;
+  if(!on){taxAmt=0;total=examplePrice;display='Tax disabled — no tax applied';}
+  else if(incl){taxAmt=examplePrice-(examplePrice/(1+rate/100));total=examplePrice;display=`Price ${cur}${examplePrice.toFixed(2)} (${name} included: ${cur}${taxAmt.toFixed(2)})`;}
+  else{taxAmt=examplePrice*rate/100;total=examplePrice+taxAmt;display=`Price ${cur}${examplePrice.toFixed(2)} + ${name} ${cur}${taxAmt.toFixed(2)} = Total ${cur}${total.toFixed(2)}`;}
+  const body=document.getElementById('tax-preview-body');
+  if(body)body.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
+      <div style="background:var(--bg2);border-radius:var(--radius);padding:9px 11px;text-align:center">
+        <div style="font-size:10px;color:var(--t2);margin-bottom:3px">Item price</div>
+        <div style="font-size:16px;font-weight:700;color:var(--t1)">${cur}${examplePrice.toFixed(2)}</div>
+      </div>
+      <div style="background:${on?'var(--redl)':'var(--bg2)'};border-radius:var(--radius);padding:9px 11px;text-align:center">
+        <div style="font-size:10px;color:var(--t2);margin-bottom:3px">${name} (${on?rate+'%':'off'})</div>
+        <div style="font-size:16px;font-weight:700;color:${on?'var(--red)':'var(--t3)'}">${on?cur+taxAmt.toFixed(2):'—'}</div>
+      </div>
+      <div style="background:${on?'var(--acl)':'var(--bg2)'};border-radius:var(--radius);padding:9px 11px;text-align:center">
+        <div style="font-size:10px;color:var(--t2);margin-bottom:3px">Customer pays</div>
+        <div style="font-size:16px;font-weight:700;color:${on?'var(--ac)':'var(--t1)'}">${cur}${total.toFixed(2)}</div>
+      </div>
+    </div>
+    <div style="font-size:11.5px;color:var(--t2);background:var(--bg2);padding:7px 10px;border-radius:var(--radius)">${display}</div>`;
+}
+function saveTaxSettings(){
+  const wasOn=db.settings.taxEnabled;
+  db.settings.taxEnabled=document.getElementById('st-tax-on')?.checked!==false;
+  db.settings.taxRate=parseFloat(document.getElementById('st-tax')?.value)||0;
+  db.settings.taxInclusive=document.getElementById('st-tax-incl')?.checked||false;
+  db.settings.taxOnReceipt=document.getElementById('st-tax-receipt')?.checked!==false;
+  db.settings.taxName=document.getElementById('st-tax-name')?.value||'Tax';
+  const curVal=document.getElementById('st-cur')?.value||'€ Euro';
+  db.settings.currency=curVal.split(' ')[0];
+  saveDB();
+  showToast(db.settings.taxEnabled?`✓ Tax ${db.settings.taxRate}% saved & active`:'✓ Tax disabled — POS updated');
+}
+
+function renderSetUsers(){
+  document.getElementById('set-view').innerHTML=`
+    <div class="page-head">
+      <span class="page-title"><i class="ti ti-users"></i>Users</span>
+      <button class="btn" onclick="openUserModal(null)"><i class="ti ti-plus"></i>Add User</button>
+    </div>
+    <div class="card"><table>
+      <thead><tr>
+        <th style="width:130px">Name</th><th style="width:150px">Email</th>
+        <th style="width:80px">Role</th><th style="width:75px">Status</th><th style="width:100px">Last login</th><th style="width:70px">Actions</th>
+      </tr></thead>
+      <tbody id="users-tbody">${userRows()}</tbody>
+    </table></div>`;
+}
+function userRows(){
+  return db.users.map(u=>`<tr>
+    <td style="font-weight:500">${u.name}</td>
+    <td style="color:var(--t2);font-size:11px">${u.email}</td>
+    <td><span class="badge b-${u.role}">${u.role}</span></td>
+    <td><span class="badge b-${u.status}">${u.status}</span></td>
+    <td style="color:var(--t2);font-size:11px">${u.last}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="icon-btn" onclick="openUserModal(${u.id})"><i class="ti ti-edit"></i></button>
+      <button class="icon-btn del" onclick="deleteUser(${u.id})"><i class="ti ti-trash"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+function openUserModal(id){
+  const u=id?db.users.find(x=>x.id===id):null;
+  document.getElementById('g-modal-title').textContent=u?'Edit User':'Add User';
+  document.getElementById('g-modal-body').innerHTML=`
+    <div class="fr"><label class="fl">Full name</label><input class="fi" type="text" id="u-name" value="${u?.name||''}"></div>
+    <div class="fr"><label class="fl">Email</label><input class="fi" type="email" id="u-email" value="${u?.email||''}"></div>
+    <div class="fr2">
+      <div class="fr"><label class="fl">Role</label><select class="fi" id="u-role" style="background:var(--bg2)">${['owner','admin','cashier','viewer'].map(r=>`<option value="${r}"${u?.role===r?' selected':''}>${r}</option>`).join('')}</select></div>
+      <div class="fr"><label class="fl">Status</label><select class="fi" id="u-status" style="background:var(--bg2)"><option value="active"${u?.status==='active'?' selected':''}>Active</option><option value="inactive"${u?.status==='inactive'?' selected':''}>Inactive</option></select></div>
+    </div>
+    ${!u?`<div class="fr"><label class="fl">Password</label><input class="fi" type="password" id="u-pass"></div>`:''}`;
+  document.getElementById('g-modal-foot').innerHTML=`<button class="btn-sm" onclick="closeGModal()">Cancel</button><button class="btn" onclick="saveUser(${id||'null'})"><i class="ti ti-check"></i>Save</button>`;
+  document.getElementById('g-modal-bg').classList.add('show');
+}
+function saveUser(id){
+  const name=document.getElementById('u-name')?.value?.trim();if(!name)return;
+  const data={name,email:document.getElementById('u-email')?.value||'',role:document.getElementById('u-role')?.value||'cashier',status:document.getElementById('u-status')?.value||'active',last:'Just now'};
+  if(id){const idx=db.users.findIndex(u=>u.id===id);if(idx>-1)db.users[idx]={...db.users[idx],...data};}
+  else db.users.push({id:db.counters.user++,...data});
+  saveDB();closeGModal();renderSetUsers();showToast('✓ User saved!');
+}
+function deleteUser(id){db.users=db.users.filter(u=>u.id!==id);saveDB();renderSetUsers();}
+
+function renderSetRoles(){
+  document.getElementById('set-view').innerHTML=`
+    <div class="page-head"><span class="page-title"><i class="ti ti-shield"></i>Roles &amp; permissions</span></div>
+    ${ROLES.map(r=>{
+      const uCount=db.users.filter(u=>u.role===r.key).length;
+      return`<div class="card">
+        <div class="ch"><span><span class="badge b-${r.key}" style="margin-right:8px">${r.key}</span>${uCount} user${uCount!==1?'s':''}</span></div>
+        <div class="cb">
+          <div class="perm-grid">${PERMS.map(p=>`<div class="perm-card">
+            <span class="perm-lbl">${p}</span>
+            <label class="toggle"><input type="checkbox"${r.perms.includes(p)?' checked':''}><span class="slider"></span></label>
+          </div>`).join('')}</div>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+function renderSetPartners(){
+  const totalShares=db.partners.reduce((s,p)=>s+p.share,0);
+  // Compute real monthly profit from finance ledger
+  const monthStart=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10);
+  const inc=db.finance.filter(x=>x.type==='income'&&x.date>=monthStart).reduce((s,x)=>s+x.amount,0);
+  const exp=db.finance.filter(x=>x.type==='expense'&&x.date>=monthStart&&x.cat!=='dividend'&&x.cat!=='withdrawal').reduce((s,x)=>s+x.amount,0);
+  const monthlyProfit=Math.max(0,inc-exp);
+  // ensure withdrawals array on each partner
+  db.partners.forEach(p=>{if(!p.withdrawals)p.withdrawals=[];if(p.availableBalance===undefined)p.availableBalance=0;});
+
+  document.getElementById('set-view').innerHTML=`
+    <div class="page-head">
+      <span class="page-title"><i class="ti ti-briefcase"></i>Partners &amp; dividends</span>
+      <button class="btn" onclick="openPartnerModal()"><i class="ti ti-plus"></i>Add partner</button>
+    </div>
+
+    <!-- Profit summary strip -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;margin-bottom:14px">
+      <div class="sc sc-green"><div class="sl">This month income</div><div class="sv" style="color:var(--green);font-size:16px">${db.settings.currency}${inc.toFixed(0)}</div></div>
+      <div class="sc sc-red"><div class="sl">This month expenses</div><div class="sv" style="color:var(--red);font-size:16px">${db.settings.currency}${exp.toFixed(0)}</div></div>
+      <div class="sc sc-accent"><div class="sl">Net profit (distributable)</div><div class="sv" style="color:var(--ac);font-size:16px">${db.settings.currency}${monthlyProfit.toFixed(0)}</div></div>
+      <div class="sc sc-amber"><div class="sl">Total shares</div><div class="sv" style="color:var(--amber);font-size:16px">${totalShares}%</div></div>
+    </div>
+
+    <!-- Partner cards -->
+    ${db.partners.map(p=>{
+      const div=parseFloat((monthlyProfit*p.share/100).toFixed(2));
+      const totalWithdrawn=(p.withdrawals||[]).reduce((s,w)=>s+w.amount,0);
+      const totalDivPaid=p.drawn||0;
+      const availBal=parseFloat((div + (p.availableBalance||0) - totalWithdrawn).toFixed(2));
+      const pct=Math.min(100,p.share);
+      return`<div class="partner-card" style="margin-bottom:12px">
+        <!-- Header -->
+        <div class="partner-head">
+          <div class="partner-avatar" style="width:40px;height:40px;font-size:14px">${p.nameInit}</div>
+          <div style="flex:1">
+            <div class="partner-name">${p.name}</div>
+            <div class="partner-role">${p.share}% equity share</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn btn-green" style="padding:5px 10px;font-size:11.5px" onclick="openWithdrawModal(${p.id})" title="Withdraw funds">
+              <i class="ti ti-cash" style="font-size:13px"></i>Withdraw
+            </button>
+            <button class="icon-btn" onclick="openPayDivModal(${p.id})" title="Pay dividend"><i class="ti ti-coin"></i></button>
+            <button class="icon-btn del" onclick="deletePartner(${p.id})"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+
+        <!-- 5 stat chips -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:10px">
+          <div class="ps">
+            <div class="ps-lbl">Invested</div>
+            <div class="ps-val">${db.settings.currency}${(p.invested||0).toLocaleString()}</div>
+          </div>
+          <div class="ps">
+            <div class="ps-lbl">This month div.</div>
+            <div class="ps-val" style="color:var(--ac)">${db.settings.currency}${div.toFixed(2)}</div>
+          </div>
+          <div class="ps">
+            <div class="ps-lbl">Total div. paid</div>
+            <div class="ps-val" style="color:var(--t2)">${db.settings.currency}${totalDivPaid.toFixed(2)}</div>
+          </div>
+          <div class="ps">
+            <div class="ps-lbl">Total withdrawn</div>
+            <div class="ps-val" style="color:var(--red)">${db.settings.currency}${totalWithdrawn.toFixed(2)}</div>
+          </div>
+          <div class="ps" style="background:${availBal>0?'var(--greenl)':'var(--redl)'};border:1px solid ${availBal>0?'#bbf7d0':'#fecaca'}">
+            <div class="ps-lbl">Available balance</div>
+            <div class="ps-val" style="color:${availBal>0?'var(--green)':'var(--red)'};font-size:15px;font-weight:700">${db.settings.currency}${availBal.toFixed(2)}</div>
+          </div>
+        </div>
+
+        <!-- Share bar -->
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:3px">
+            <span>Equity share</span><span style="font-weight:600;color:var(--t1)">${p.share}%</span>
+          </div>
+          <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
+        </div>
+
+        <!-- Withdrawal history -->
+        ${(p.withdrawals||[]).length>0?`
+        <div style="margin-top:10px">
+          <div style="font-size:10.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Withdrawal history</div>
+          <div style="border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden">
+            <table style="margin:0">
+              <thead><tr>
+                <th style="width:80px">Date</th><th style="width:80px">Amount</th><th style="width:70px">Method</th><th>Note</th>
+              </tr></thead>
+              <tbody>${(p.withdrawals||[]).slice().reverse().slice(0,5).map(w=>`<tr>
+                <td style="font-size:11px;color:var(--t2)">${w.date}</td>
+                <td style="font-weight:600;color:var(--red)">${db.settings.currency}${w.amount.toFixed(2)}</td>
+                <td><span class="badge b-gray" style="font-size:10px">${w.method||'cash'}</span></td>
+                <td style="color:var(--t2);font-size:11px">${w.note||'—'}</td>
+              </tr>`).join('')}</tbody>
+            </table>
+          </div>
+        </div>`:''}
+      </div>`;
+    }).join('')}`;
+}
+
+function openWithdrawModal(id){
+  const p=db.partners.find(x=>x.id===id);if(!p)return;
+  if(!p.withdrawals)p.withdrawals=[];
+  const monthStart=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10);
+  const inc=db.finance.filter(x=>x.type==='income'&&x.date>=monthStart).reduce((s,x)=>s+x.amount,0);
+  const expL=db.finance.filter(x=>x.type==='expense'&&x.date>=monthStart&&x.cat!=='dividend'&&x.cat!=='withdrawal').reduce((s,x)=>s+x.amount,0);
+  const monthlyProfit=Math.max(0,inc-expL);
+  const div=parseFloat((monthlyProfit*p.share/100).toFixed(2));
+  const totalWithdrawn=p.withdrawals.reduce((s,w)=>s+w.amount,0);
+  const availBal=parseFloat((div+(p.availableBalance||0)-totalWithdrawn).toFixed(2));
+
+  document.getElementById('g-modal-title').textContent='💰 Withdraw — '+p.name;
+  document.getElementById('g-modal-body').innerHTML=`
+    <!-- Balance info -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:var(--acl);border-radius:var(--radius);padding:10px 12px;text-align:center">
+        <div style="font-size:10.5px;color:var(--t2);margin-bottom:3px">This month's dividend</div>
+        <div style="font-size:20px;font-weight:700;color:var(--ac)">${db.settings.currency}${div.toFixed(2)}</div>
+      </div>
+      <div style="background:${availBal>=0?'var(--greenl)':'var(--redl)'};border-radius:var(--radius);padding:10px 12px;text-align:center;border:1px solid ${availBal>=0?'#bbf7d0':'#fecaca'}">
+        <div style="font-size:10.5px;color:var(--t2);margin-bottom:3px">Available to withdraw</div>
+        <div style="font-size:20px;font-weight:700;color:${availBal>=0?'var(--green)':'var(--red)'}">${db.settings.currency}${availBal.toFixed(2)}</div>
+      </div>
+    </div>
+
+    ${availBal<=0?`<div style="background:var(--redl);border:1px solid #fecaca;border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:7px"><i class="ti ti-alert-circle" style="font-size:16px"></i>No available balance to withdraw this month</div>`:''}
+
+    <!-- Amount -->
+    <div class="fr" style="margin-bottom:10px">
+      <label class="fl">Withdrawal amount (${db.settings.currency}) *</label>
+      <div style="position:relative">
+        <input class="fi" type="number" id="wd-amt" min="0" step="0.01" max="${availBal}" value="${Math.max(0,availBal).toFixed(2)}" style="font-size:16px;font-weight:700;color:var(--green);height:40px;padding-left:36px" oninput="updateWdValidation(${availBal})">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--t2);pointer-events:none">${db.settings.currency}</span>
+      </div>
+      <div id="wd-warn" style="font-size:11px;color:var(--red);margin-top:4px;min-height:16px"></div>
+    </div>
+
+    <!-- Method -->
+    <div class="fr2" style="margin-bottom:10px">
+      <div class="fr">
+        <label class="fl">Payment method</label>
+        <select class="fi" id="wd-method" style="background:var(--bg2)">
+          <option value="cash">💵 Cash</option>
+          <option value="bank">🏦 Bank transfer</option>
+          <option value="mobile">📱 Mobile payment</option>
+          <option value="cheque">📄 Cheque</option>
+        </select>
+      </div>
+      <div class="fr">
+        <label class="fl">Date</label>
+        <input class="fi" type="date" id="wd-date" value="${new Date().toISOString().slice(0,10)}">
+      </div>
+    </div>
+
+    <!-- Note -->
+    <div class="fr">
+      <label class="fl">Note (optional)</label>
+      <input class="fi" type="text" id="wd-note" placeholder="Reason or reference…">
+    </div>`;
+
+  document.getElementById('g-modal-foot').innerHTML=`
+    <button class="btn-sm" onclick="closeGModal()">Cancel</button>
+    <button class="btn btn-green" onclick="confirmWithdrawal(${id},${availBal})" ${availBal<=0?'disabled style="opacity:.4;cursor:not-allowed"':''}><i class="ti ti-cash"></i>Confirm withdrawal</button>`;
+  document.getElementById('g-modal-bg').classList.add('show');
+}
+
+function updateWdValidation(avail){
+  const amt=parseFloat(document.getElementById('wd-amt')?.value)||0;
+  const warn=document.getElementById('wd-warn');
+  if(!warn)return;
+  if(amt>avail)warn.textContent=`⚠ Exceeds available balance of ${db.settings.currency}${avail.toFixed(2)}`;
+  else if(amt<=0)warn.textContent='⚠ Amount must be greater than 0';
+  else warn.textContent='';
+}
+
+function confirmWithdrawal(id,avail){
+  const p=db.partners.find(x=>x.id===id);if(!p)return;
+  const amt=parseFloat(document.getElementById('wd-amt')?.value)||0;
+  if(amt<=0){showToast('⚠ Enter a valid amount');return;}
+  if(amt>avail+0.01){showToast('⚠ Amount exceeds available balance');return;}
+  const method=document.getElementById('wd-method')?.value||'cash';
+  const date=document.getElementById('wd-date')?.value||new Date().toISOString().slice(0,10);
+  const note=document.getElementById('wd-note')?.value||'';
+  if(!p.withdrawals)p.withdrawals=[];
+  const wid='WD-'+String(db.counters.finance++).padStart(4,'0');
+  p.withdrawals.push({id:wid,date,amount:amt,method,note});
+  // Log to finance
+  db.finance.push({id:db.counters.finance++,date,desc:'Withdrawal — '+p.name,cat:'withdrawal',amount:amt,type:'expense',ref:wid});
+  saveDB();closeGModal();renderSetPartners();
+  showToast(`✓ ${db.settings.currency}${amt.toFixed(2)} withdrawn for ${p.name}`);
+}
+function openPartnerModal(){
+  document.getElementById('g-modal-title').textContent='Add Partner';
+  document.getElementById('g-modal-body').innerHTML=`
+    <div class="fr"><label class="fl">Full name</label><input class="fi" type="text" id="p-name"></div>
+    <div class="fr2">
+      <div class="fr"><label class="fl">Share (%)</label><input class="fi" type="number" id="p-share" min="1" max="100" value="10"></div>
+      <div class="fr"><label class="fl">Invested (${db.settings.currency})</label><input class="fi" type="number" id="p-inv" min="0" value="0"></div>
+    </div>`;
+  document.getElementById('g-modal-foot').innerHTML=`<button class="btn-sm" onclick="closeGModal()">Cancel</button><button class="btn" onclick="savePartner()"><i class="ti ti-check"></i>Save</button>`;
+  document.getElementById('g-modal-bg').classList.add('show');
+}
+function savePartner(){
+  const name=document.getElementById('p-name')?.value?.trim();if(!name)return;
+  db.partners.push({id:db.counters.partner++,name,nameInit:name.split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase(),share:parseInt(document.getElementById('p-share')?.value)||10,invested:parseFloat(document.getElementById('p-inv')?.value)||0,drawn:0});
+  saveDB();closeGModal();renderSetPartners();showToast('✓ Partner saved!');
+}
+function openPayDivModal(id){
+  const p=db.partners.find(x=>x.id===id);
+  const div=parseFloat((MONTHLY_PROFIT*p.share/100).toFixed(2));
+  document.getElementById('g-modal-title').textContent='Pay Dividend — '+p.name;
+  document.getElementById('g-modal-body').innerHTML=`
+    <div style="background:var(--acl);border-radius:var(--radius);padding:10px 12px;margin-bottom:4px;display:flex;justify-content:space-between">
+      <span style="font-size:12px;color:var(--ac)">Calculated dividend</span>
+      <span style="font-size:18px;font-weight:600;color:var(--ac)">${db.settings.currency}${div}</span>
+    </div>
+    <div class="fr"><label class="fl">Amount (${db.settings.currency})</label><input class="fi" type="number" id="div-amt" value="${div}"></div>
+    <div class="fr"><label class="fl">Note</label><input class="fi" type="text" id="div-note" placeholder="Optional note"></div>`;
+  document.getElementById('g-modal-foot').innerHTML=`<button class="btn-sm" onclick="closeGModal()">Cancel</button><button class="btn btn-green" onclick="payDiv(${id})"><i class="ti ti-coin"></i>Confirm</button>`;
+  document.getElementById('g-modal-bg').classList.add('show');
+}
+function payDiv(id){
+  const p=db.partners.find(x=>x.id===id);
+  const amt=parseFloat(document.getElementById('div-amt')?.value)||0;
+  p.drawn=parseFloat((p.drawn+amt).toFixed(2));
+  const today=new Date().toISOString().slice(0,10);
+  db.finance.push({id:db.counters.finance++,date:today,desc:'Dividend — '+p.name,cat:'dividend',amount:amt,type:'expense',ref:'DIV'});
+  saveDB();closeGModal();renderSetPartners();showToast('✓ Dividend paid!');
+}
+function deletePartner(id){db.partners=db.partners.filter(p=>p.id!==id);saveDB();renderSetPartners();}
+
+function renderSetBackup(){
+  document.getElementById('set-view').innerHTML=`
+    <div class="page-head"><span class="page-title"><i class="ti ti-database"></i>Backup &amp; restore</span></div>
+    <div class="card"><div class="cb">
+      <div class="backup-row">
+        <div class="backup-info"><span class="backup-lbl">Server-side storage</span><span class="backup-sub">Data lives in <b>SQLite</b> on your Render/Railway server — survives restarts</span></div>
+        <span class="badge b-g">Active</span>
+      </div>
+      <div class="backup-row">
+        <div class="backup-info"><span class="backup-lbl">Manual backup</span><span class="backup-sub">Download full data as JSON</span></div>
+        <button class="backup-btn" onclick="exportData()"><i class="ti ti-download" style="font-size:14px"></i>Download</button>
+      </div>
+      <div class="backup-row">
+        <div class="backup-info"><span class="backup-lbl">Restore from backup</span><span class="backup-sub">Upload a JSON backup file to restore</span></div>
+        <label class="backup-btn" style="cursor:pointer"><i class="ti ti-upload" style="font-size:14px"></i>Upload<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+      </div>
+    </div></div>`;
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='swiftpos-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  showToast('✓ Backup downloaded!');
+}
+async function importData(event){
+  const file=event.target.files[0];if(!file)return;
+  try{
+    const text=await file.text();
+    const parsed=JSON.parse(text);
+    showLoader('Restoring backup…');
+    await apiPut(parsed);
+    db=parsed;
+    hideLoader();
+    render(_curPage);
+    showToast('✓ Backup restored!');
+  }catch(e){
+    hideLoader();
+    showToast('⚠ Invalid backup file');
+  }
+}
+async function doReset(type){
+  if(!confirm('Are you sure? This cannot be undone.'))return;
+  if(type==='sales'){db.sales=[];db.finance=db.finance.filter(f=>f.cat==='purchase');}
+  else if(type==='stock')db.items.forEach(i=>i.stock=0);
+  else if(type==='finance')db.finance=[];
+  else{
+    showLoader('Resetting…');
+    await apiDelete();
+    db=await apiGet();
+    hideLoader();
+    render(_curPage);showToast('✓ Factory reset done');
+    return;
+  }
+  saveDB();render(_curPage);showToast('✓ Reset done');
+}
+function renderSetReset(){
+  document.getElementById('set-view').innerHTML=`
+    <div class="page-head"><span class="page-title"><i class="ti ti-refresh-alert"></i>Reset &amp; danger zone</span></div>
+    <div class="danger-zone">
+      <div class="dz-title"><i class="ti ti-alert-triangle" style="font-size:16px"></i>Danger zone</div>
+      ${[
+        ['Reset sales data','Delete all sales history (keeps items & customers)','sales'],
+        ['Reset stock levels','Set all item quantities to zero','stock'],
+        ['Reset finance log','Clear all finance entries','finance'],
+        ['Factory reset','Delete ALL data and restore defaults','all'],
+      ].map(([l,sub,t])=>`<div class="dz-row">
+        <div class="dz-info"><span class="dz-lbl">${l}</span><span class="dz-sub">${sub}</span></div>
+        <button class="dz-btn" onclick="doReset('${t}')">${t==='all'?'Factory reset':'Reset'}</button>
+      </div>`).join('')}
+    </div>`;
+}
+
+/* ════════════════════════════════════════════
+   MODAL / TOAST
+════════════════════════════════════════════ */
+function closeGModal(){document.getElementById('g-modal-bg').classList.remove('show');}
+document.getElementById('g-modal-bg').addEventListener('click',function(e){if(e.target===this)closeGModal();});
+let _toastT;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_toastT);_toastT=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+/* ═══════════════════════════════════════════
+   BOOT — async: load from server then show login
+═══════════════════════════════════════════ */
+(async function boot(){
+  showLoader('Connecting to server…');
+  try{
+    db = await apiGet();
+    // guard missing arrays (server already seeds but just in case)
+    if(!db.expenses){db.expenses=[];}
+    if(!db.counters.exp){db.counters.exp=1;}
+    if(!db.settings.expBudget){db.settings.expBudget=0;}
+    if(!db.settings.taxEnabled && db.settings.taxEnabled!==false) db.settings.taxEnabled=true;
+    if(!db.settings.taxName) db.settings.taxName='Tax';
+    db.items.forEach(it=>{if(!it.unit)it.unit='pcs';if(!it.wsUnit)it.wsUnit='box';if(!it.wsQty)it.wsQty=1;if(!it.wsPrice)it.wsPrice=it.cost;});
+    db.partners.forEach(p=>{if(!p.withdrawals)p.withdrawals=[];if(p.availableBalance===undefined)p.availableBalance=0;});
+    db.users.forEach(u=>{if(!u.pinHash)u.pinHash=simpleHash(DEFAULT_PINS[u.role]||'1234');});
+    hideLoader();
+    // Init language
+    _lang=db.settings.lang||'en';
+    document.documentElement.setAttribute('dir',LANGS[_lang].dir);
+    document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.lbtn').forEach(b=>{
+      if((b.textContent==='فارسی'&&_lang==='fa')||(b.textContent==='EN'&&_lang==='en')||(b.textContent==='پښتو'&&_lang==='ps'))b.classList.add('on');
+    });
+    updatePills();
+    // Show login
+    document.getElementById('wrap').style.display='none';
+    buildLoginScreen();
+  }catch(err){
+    hideLoader();
+    document.body.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;flex-direction:column;gap:12px;color:#374151"><div style="font-size:32px">⚠️</div><div style="font-size:16px;font-weight:600">Cannot connect to server</div><div style="font-size:13px;color:#6b7280">Make sure the Node.js backend is running on the same origin.</div><div style="font-size:12px;color:#9ca3af;margin-top:4px;font-family:monospace">${err.message}</div><button onclick="location.reload()" style="margin-top:8px;padding:8px 20px;border-radius:8px;border:none;background:#2563eb;color:#fff;font-size:13px;cursor:pointer">Retry</button></div>`;
+  }
+})();
+
+/* ════════════════════════════════════════════
+   LOGIN SYSTEM
+════════════════════════════════════════════ */
+// Default PINs per role (4-digit). Stored hashed (simple hash for demo).
+// Real prod: use bcrypt. Here we use a quick hash so PINs aren't plain text.
+const ROLE_COLORS={owner:'linear-gradient(135deg,#7c3aed,#5b21b6)',admin:'linear-gradient(135deg,#2563eb,#1d4ed8)',cashier:'linear-gradient(135deg,#16a34a,#15803d)',viewer:'linear-gradient(135deg,#6b7280,#4b5563)'};
+const DEFAULT_PINS={owner:'1234',admin:'1111',cashier:'0000',viewer:'9999'};
+
+function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return String(h);}
+
+// ensure users have pins
+db.users.forEach(u=>{if(!u.pinHash)u.pinHash=simpleHash(DEFAULT_PINS[u.role]||'1234');});
+
+let _loginUser=null, _pinBuffer='';
+
+const LOGIN_TR={
+  en:{tagline:'Select your account',enter_pin:'Enter PIN',wrong:'Wrong PIN — try again',select_user:'Please select a user first',logout_lbl:'Logout'},
+  fa:{tagline:'حساب کاربری خود را انتخاب کنید',enter_pin:'رمز ورود',wrong:'رمز اشتباه است',select_user:'ابتدا کاربری انتخاب کنید',logout_lbl:'خروج'},
+  ps:{tagline:'خپل کارونکی وټاکئ',enter_pin:'PIN دننه کړئ',wrong:'غلط PIN — بیا هڅه وکړئ',select_user:'لومړی کارونکی وټاکئ',logout_lbl:'وتل'},
+};
+
+function LT(k){return(LOGIN_TR[_lang]||LOGIN_TR.en)[k]||k;}
+
+function setLoginLang(l){
+  _lang=l;
+  db.settings.lang=l;
+  document.documentElement.setAttribute('dir',LANGS[l].dir);
+  document.querySelectorAll('.login-lbtn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.login-lbtn').forEach(b=>{
+    if((b.textContent==='فارسی'&&l==='fa')||(b.textContent==='EN'&&l==='en')||(b.textContent==='پښتو'&&l==='ps'))b.classList.add('on');
+  });
+  document.getElementById('lt-tagline').textContent=LT('tagline');
+  document.getElementById('lt-enter-pin').textContent=LT('enter_pin');
+}
+
+function buildLoginScreen(){
+  document.getElementById('lt-tagline').textContent=LT('tagline');
+  document.getElementById('lt-enter-pin').textContent=LT('enter_pin');
+  // user buttons
+  const grid=document.getElementById('login-user-grid');
+  grid.innerHTML=db.users.filter(u=>u.status==='active').map(u=>`
+    <button class="login-user-btn" id="lub-${u.id}" onclick="selectLoginUser(${u.id})">
+      <span class="login-role-badge badge b-${u.role}">${u.role}</span>
+      <div class="login-avatar" style="background:${ROLE_COLORS[u.role]||ROLE_COLORS.viewer}">${u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+      <div class="login-uname">${u.name.split(' ')[0]}</div>
+      <div class="login-urole">${u.role}</div>
+    </button>`).join('');
+  // numpad
+  const numpad=document.getElementById('numpad');
+  const keys=['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  numpad.innerHTML=keys.map(k=>k===''?`<div></div>`:
+    `<button class="np-btn${k==='⌫'?' del':''}" onclick="numpadPress('${k}')">${k}</button>`).join('');
+  updatePinDots();
+}
+
+function selectLoginUser(id){
+  _loginUser=db.users.find(u=>u.id===id);
+  _pinBuffer='';
+  document.querySelectorAll('.login-user-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('lub-'+id)?.classList.add('selected');
+  document.getElementById('login-error').textContent='';
+  updatePinDots();
+}
+
+function numpadPress(key){
+  if(!_loginUser){document.getElementById('login-error').textContent=LT('select_user');return;}
+  if(key==='⌫'){_pinBuffer=_pinBuffer.slice(0,-1);}
+  else if(_pinBuffer.length<4){_pinBuffer+=key;}
+  updatePinDots();
+  if(_pinBuffer.length===4)setTimeout(attemptLogin,120);
+}
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById('dot-'+i);
+    if(dot)dot.classList.toggle('filled',i<_pinBuffer.length);
+  }
+}
+
+function attemptLogin(){
+  if(!_loginUser)return;
+  const entered=simpleHash(_pinBuffer);
+  if(entered===_loginUser.pinHash){
+    // success
+    document.getElementById('login-screen').style.opacity='0';
+    document.getElementById('login-screen').style.transition='opacity .35s';
+    setTimeout(()=>{
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('wrap').style.display='flex';
+    },350);
+    document.getElementById('login-error').textContent='';
+    // update topbar with logged-in user
+    const tbLogout=document.getElementById('tb-logout-lbl');
+    if(tbLogout)tbLogout.textContent=LT('logout_lbl');
+    // update sidebar user info if elements exist
+    setLang(_lang);
+    render('pos');
+    showToast('✓ Welcome, '+_loginUser.name.split(' ')[0]+'!');
+  } else {
+    document.getElementById('login-error').textContent=LT('wrong');
+    // shake dots
+    const dotsEl=document.getElementById('pin-dots');
+    dotsEl.style.transform='translateX(8px)';
+    setTimeout(()=>dotsEl.style.transform='translateX(-8px)',80);
+    setTimeout(()=>dotsEl.style.transform='translateX(0)',160);
+    dotsEl.style.transition='transform .08s';
+    _pinBuffer='';
+    setTimeout(updatePinDots,180);
+  }
+}
+
+function doLogout(){
+  _loginUser=null;_pinBuffer='';
+  document.getElementById('wrap').style.display='none';
+  const ls=document.getElementById('login-screen');
+  ls.style.display='flex';ls.style.opacity='0';
+  setTimeout(()=>{ls.style.transition='opacity .3s';ls.style.opacity='1';},10);
+  document.querySelectorAll('.login-user-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('login-error').textContent='';
+  updatePinDots();
+}
+
+// Init: hide app, show login — handled inside boot() above
+
+
+</script>
+</body>
+</html>
