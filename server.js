@@ -1,9 +1,10 @@
 /**
  * SwiftPOS — server.js
- * Express + better-sqlite3 backend.
- * Stores everything in a single SQLite file (data/swiftpos.db).
- * All app state is ONE JSON blob per key — same shape as the old localStorage db object.
- * This makes the frontend change minimal: replace localStorage calls with fetch().
+ * Express + fs (flat JSON file) — zero native dependencies.
+ * No better-sqlite3, no node-gyp, no compilation. Runs on Render free tier.
+ *
+ * Data is stored in data/swiftpos.json (one JSON file, one object).
+ * A persistent Render disk keeps it alive across deploys & restarts.
  */
 
 'use strict';
@@ -12,26 +13,15 @@ const fs      = require('fs');
 const express = require('express');
 const cors    = require('cors');
 const comp    = require('compression');
-const Database = require('better-sqlite3');
 
 /* ── paths ───────────────────────────────── */
 const DATA_DIR = path.join(__dirname, 'data');
-const DB_PATH  = path.join(DATA_DIR, 'swiftpos.db');
+const DB_FILE  = path.join(DATA_DIR, 'swiftpos.json');
 const PUB_DIR  = path.join(__dirname, 'public');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-/* ── database ────────────────────────────── */
-const sql = new Database(DB_PATH);
-
-sql.exec(`
-  CREATE TABLE IF NOT EXISTS store (
-    key   TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-  );
-`);
-
-// Default data identical to the frontend DEFAULT object
+/* ── default seed data ───────────────────── */
 const DEFAULT_DB = {
   items: [
     {id:1,name:'Tomato',barcode:'6001234000001',price:1.50,cost:0.80,stock:420,min:50,cat:'food',unit:'kg',wsUnit:'carton',wsQty:20,wsPrice:22.00},
@@ -82,75 +72,101 @@ const DEFAULT_DB = {
   counters: {sale:1,item:6,customer:3,finance:1,po:42,user:5,partner:4,exp:1},
 };
 
-/* ── helpers ─────────────────────────────── */
-const getStmt = sql.prepare('SELECT value FROM store WHERE key = ?');
-const setStmt = sql.prepare('INSERT OR REPLACE INTO store (key, value) VALUES (?, ?)');
-
-function dbGet(key) {
-  const row = getStmt.get(key);
-  return row ? JSON.parse(row.value) : null;
+/* ── flat-file helpers ───────────────────────
+   Read / write the entire JSON file atomically.
+   We write to a temp file then rename so a crash
+   mid-write never corrupts the data file.
+─────────────────────────────────────────────── */
+function dbRead() {
+  try {
+    if (!fs.existsSync(DB_FILE)) return null;
+    return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+  } catch (e) {
+    console.error('dbRead error:', e.message);
+    return null;
+  }
 }
-function dbSet(key, val) {
-  setStmt.run(key, JSON.stringify(val));
+
+function dbWrite(data) {
+  const tmp = DB_FILE + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data), 'utf8');
+  fs.renameSync(tmp, DB_FILE);   // atomic on most OS / filesystems
 }
 
 // Seed on first run
-if (!dbGet('db')) {
-  dbSet('db', DEFAULT_DB);
-  console.log('🌱  Database seeded with defaults');
+if (!fs.existsSync(DB_FILE)) {
+  dbWrite(DEFAULT_DB);
+  console.log('🌱  swiftpos.json created with default data');
 }
 
 /* ── express ─────────────────────────────── */
 const app = express();
 app.use(comp());
 app.use(cors());
-app.use(express.json({ limit: '4mb' }));
+app.use(express.json({ limit: '8mb' }));
 app.use(express.static(PUB_DIR));
 
-/* ── API ─────────────────────────────────── */
+/* ── API routes ─────────────────────────── */
 
-// GET full db
+// GET — return full db
 app.get('/api/db', (req, res) => {
-  const data = dbGet('db') || DEFAULT_DB;
+  const data = dbRead() || DEFAULT_DB;
   res.json(data);
 });
 
-// PUT full db (frontend sends entire db object on every save)
+// PUT — overwrite full db (frontend debounces to 400 ms)
 app.put('/api/db', (req, res) => {
   const body = req.body;
-  if (!body || typeof body !== 'object') return res.status(400).json({ error: 'Invalid body' });
-  dbSet('db', body);
-  res.json({ ok: true });
+  if (!body || typeof body !== 'object') {
+    return res.status(400).json({ error: 'Invalid body' });
+  }
+  try {
+    dbWrite(body);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('PUT /api/db error:', e.message);
+    res.status(500).json({ error: 'Write failed' });
+  }
 });
 
-// PATCH partial update — body: { path: 'items', value: [...] }
-// Supports dot-path like "settings.taxRate"
+// PATCH — update a single dot-path key, e.g. { path: 'settings.taxRate', value: 8 }
 app.patch('/api/db', (req, res) => {
   const { path: p, value } = req.body || {};
   if (!p) return res.status(400).json({ error: 'path required' });
-  const data = dbGet('db') || DEFAULT_DB;
-  const parts = p.split('.');
-  let obj = data;
-  for (let i = 0; i < parts.length - 1; i++) {
-    if (!obj[parts[i]]) obj[parts[i]] = {};
-    obj = obj[parts[i]];
+  try {
+    const data  = dbRead() || DEFAULT_DB;
+    const parts = p.split('.');
+    let obj = data;
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (!obj[parts[i]]) obj[parts[i]] = {};
+      obj = obj[parts[i]];
+    }
+    obj[parts[parts.length - 1]] = value;
+    dbWrite(data);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('PATCH /api/db error:', e.message);
+    res.status(500).json({ error: 'Write failed' });
   }
-  obj[parts[parts.length - 1]] = value;
-  dbSet('db', data);
-  res.json({ ok: true });
 });
 
-// DELETE reset
+// DELETE — factory reset
 app.delete('/api/db', (req, res) => {
-  dbSet('db', JSON.parse(JSON.stringify(DEFAULT_DB)));
-  res.json({ ok: true, message: 'Database reset to defaults' });
+  try {
+    dbWrite(JSON.parse(JSON.stringify(DEFAULT_DB)));
+    res.json({ ok: true, message: 'Database reset to defaults' });
+  } catch (e) {
+    res.status(500).json({ error: 'Reset failed' });
+  }
 });
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', ts: Date.now(), file: DB_FILE });
+});
 
-// SPA fallback — serve index.html for every non-API route
-app.get(/^(?!\/api).*/, (req, res) => {
+// SPA fallback — serve index.html for every non-API path
+app.get(/^(?!\/api).*/, (_req, res) => {
   res.sendFile(path.join(PUB_DIR, 'index.html'));
 });
 
@@ -158,4 +174,5 @@ app.get(/^(?!\/api).*/, (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀  SwiftPOS running → http://localhost:${PORT}`);
+  console.log(`📄  Data file: ${DB_FILE}`);
 });
